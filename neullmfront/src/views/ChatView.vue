@@ -482,7 +482,7 @@ async function handleLogout() {
   }
 }
 
-const API_BASE = import.meta.env.VITE_API_BASE || (import.meta.env.DEV ? '' : 'http://localhost:8082');
+const API_BASE = import.meta.env.VITE_API_BASE || '';
 const CHAT_SSE_PATH = '/api/prompt/stream';
 
 const studentPromptTemplates = [

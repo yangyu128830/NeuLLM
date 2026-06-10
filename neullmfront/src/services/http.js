@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { getToken, clearAuth } from '../stores/auth';
 
-const baseURL = import.meta.env.VITE_API_BASE || (import.meta.env.DEV ? '' : 'http://localhost:8082');
+const baseURL = import.meta.env.VITE_API_BASE || '';
 
 const http = axios.create({
   baseURL,

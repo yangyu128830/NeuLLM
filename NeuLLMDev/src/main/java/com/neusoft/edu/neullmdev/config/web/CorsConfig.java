@@ -28,6 +28,13 @@ public class CorsConfig implements WebMvcConfigurer {
                 .toArray(String[]::new);
     }
 
+    /** 始终放行 zhixueban.help 及其子域（不受 Railway APP_CORS_ORIGINS 覆盖影响） */
+    private void allowZhixuebanDomains(CorsConfiguration config) {
+        config.addAllowedOriginPattern("https://*.zhixueban.help");
+        config.addAllowedOriginPattern("https://zhixueban.help");
+        config.addAllowedOriginPattern("https://www.zhixueban.help");
+    }
+
     @Bean
     @Order(Ordered.HIGHEST_PRECEDENCE)
     public CorsFilter corsFilter() {
@@ -36,6 +43,7 @@ public class CorsConfig implements WebMvcConfigurer {
         for (String origin : allowedOrigins()) {
             config.addAllowedOrigin(origin);
         }
+        allowZhixuebanDomains(config);
         config.addAllowedHeader(CorsConfiguration.ALL);
         config.addAllowedMethod(CorsConfiguration.ALL);
         config.setMaxAge(3600L);
@@ -50,6 +58,10 @@ public class CorsConfig implements WebMvcConfigurer {
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
                 .allowedOrigins(allowedOrigins())
+                .allowedOriginPatterns(
+                        "https://*.zhixueban.help",
+                        "https://zhixueban.help",
+                        "https://www.zhixueban.help")
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH")
                 .allowedHeaders("*")
                 .allowCredentials(true)
