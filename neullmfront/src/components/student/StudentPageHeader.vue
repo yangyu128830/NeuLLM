@@ -43,7 +43,7 @@ defineEmits(['logout']);
 </script>
 
 <style scoped>
-@import '../assets/classroom-theme.css';
+@import '../../assets/classroom-theme.css';
 
 .topbar {
   flex-shrink: 0;
