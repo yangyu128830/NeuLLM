@@ -1,0 +1,9 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "installCommand": "cd neullmfront && npm install",
+  "buildCommand": "cd neullmfront && npm run build",
+  "outputDirectory": "neullmfront/dist",
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/index.html" }
+  ]
+}
