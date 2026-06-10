@@ -33,6 +33,73 @@ npm run dev
 
 前端通过 Vite 代理或配置的后端地址访问 NeuLLMDev API。
 
+## 线上部署（推荐方案）
+
+整项目需要 **两个平台**：Vercel 放前端，Railway（或云服务器）放后端 + 数据库。
+
+```
+用户 → Vercel（neullmfront）→ Railway（NeuLLMDev + MySQL）
+```
+
+### 第一步：Vercel 部署前端（你已完成）
+
+- 仓库根目录 `vercel.json` 会自动构建 `neullmfront/`
+- 站点示例：https://neu-llm.vercel.app
+
+### 第二步：Railway 部署后端 + MySQL
+
+1. 打开 [Railway](https://railway.app)，用 GitHub 登录
+2. **New Project** → **Deploy from GitHub repo** → 选择 `NeuLLM`
+3. **Add Service** → **Database** → **MySQL**（记下连接信息）
+4. 再 **Add Service** → 同一仓库，设置：
+   - **Root Directory**：`NeuLLMDev`
+   - Railway 会检测到 `Dockerfile` 并自动构建
+
+5. 在后端服务的 **Variables** 里添加：
+
+| 变量 | 说明 |
+|------|------|
+| `SPRING_DATASOURCE_URL` | MySQL 连接串，如 `jdbc:mysql://host:port/railway?characterEncoding=utf-8&serverTimezone=Asia/Shanghai` |
+| `SPRING_DATASOURCE_USERNAME` | MySQL 用户名 |
+| `SPRING_DATASOURCE_PASSWORD` | MySQL 密码 |
+| `SERVER_PORT` | `8080`（Railway 默认端口） |
+| `MOONSHOT_API_KEY` | Kimi 大模型 API Key |
+| `APP_CORS_ORIGINS` | `https://neu-llm.vercel.app`（你的 Vercel 域名，多个用逗号分隔） |
+
+6. 部署完成后，在 Railway 后端服务 → **Settings** → **Networking** → **Generate Domain**，得到公网地址，例如 `https://neullm-dev-production.up.railway.app`
+
+> **构建失败排查**：若出现 `Failed to build an image`，请确认 (1) 已 push 最新代码（含根目录 `Dockerfile` + `railway.toml`），(2) 服务 **Root Directory** 留空（用根目录 Dockerfile）或设为 `NeuLLMDev`（用子目录 Dockerfile），(3) **Variables** 已配置 MySQL 连接信息。
+
+7. 浏览器访问 `https://你的后端域名/api/auth/login` 应返回 405 或 JSON（说明后端已上线）
+
+### 第三步：Vercel 连接后端
+
+Vercel → 项目 **Settings** → **Environment Variables**：
+
+| 变量 | 值 |
+|------|-----|
+| `VITE_API_BASE` | `https://你的后端域名.railway.app`（无末尾斜杠） |
+| `VITE_AMAP_KEY` | 可选，高德地图 Key |
+| `VITE_AMAP_SECURITY_CODE` | 可选，高德安全密钥 |
+
+保存后在 **Deployments** 页 **Redeploy** 前端。
+
+### 第四步：验证
+
+1. 打开 https://neu-llm.vercel.app/login
+2. 登录 `student1` / `123456`
+3. 若失败：F12 → Network，确认请求发往 Railway 而非 `localhost:8082`
+
+### 其他部署方式
+
+| 平台 | 适合 |
+|------|------|
+| **Railway** | 省心，Spring Boot + MySQL 一键部署（推荐） |
+| **Render** | 类似 Railway，免费档有休眠限制 |
+| **云服务器**（阿里云/腾讯云） | 装 JDK 17 + MySQL，手动 `java -jar` 或使用 `NeuLLMDev/Dockerfile` |
+
+本地开发不受影响，仍按下方「本地启动」运行即可。
+
 ## Vercel 部署（仅前端）
 
 仓库根目录已包含 `vercel.json`，从 GitHub 导入后 **Root Directory 保持默认（仓库根目录）** 即可，Vercel 会自动构建 `neullmfront/` 并输出到 `neullmfront/dist`。

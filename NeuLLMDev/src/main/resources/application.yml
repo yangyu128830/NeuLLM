@@ -7,10 +7,10 @@ spring:
       port: ${DEVTOOLS_LIVERELOAD_PORT:35247}
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    # createDatabaseIfNotExist：库不存在时自动建库；表仍由 classpath:schema.sql 初始化
-    url: jdbc:mysql://localhost:3306/neusoftllm?characterEncoding=utf-8&serverTimezone=Asia/Shanghai&createDatabaseIfNotExist=true
-    username: root
-    password: 123456
+    # 生产环境用 SPRING_DATASOURCE_* 覆盖；本地默认连 localhost
+    url: ${SPRING_DATASOURCE_URL:jdbc:mysql://localhost:3306/neusoftllm?characterEncoding=utf-8&serverTimezone=Asia/Shanghai&createDatabaseIfNotExist=true}
+    username: ${SPRING_DATASOURCE_USERNAME:root}
+    password: ${SPRING_DATASOURCE_PASSWORD:123456}
   sql:
     init:
       mode: always
@@ -84,10 +84,13 @@ sms:
 app:
   storage:
     artifact-dir: ${ARTIFACT_DIR:data/artifacts}
+  cors:
+    # 逗号分隔，生产示例：https://neu-llm.vercel.app,https://your-domain.com
+    origins: ${APP_CORS_ORIGINS:http://localhost:5180,http://127.0.0.1:5180}
   auth:
     session-hours: 72
   llm:
-    api-key: sk-4xTzitt2R2BLmmcs2xPOZr5LzDOpaxak8VQaHg7t8typIgw4
+    api-key: ${MOONSHOT_API_KEY:sk-4xTzitt2R2BLmmcs2xPOZr5LzDOpaxak8VQaHg7t8typIgw4}
     base-url: https://api.moonshot.cn/v1/chat/completions
     model: moonshot-v1-32k
     # 普通重试：主要覆盖 5xx / 网络抖动（4xx 里除 429 外不重试）。
