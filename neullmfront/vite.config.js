@@ -17,6 +17,7 @@ export default defineConfig({
   server: {
     port: 5180,
     strictPort: true,
+    // 本地开发代理；生产环境由 VITE_API_BASE（.env.production / Vercel）决定
     proxy: {
       '/api': {
         target: 'http://localhost:8082',
