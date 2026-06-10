@@ -91,6 +91,90 @@ PREPARE stmt FROM @sql_ua;
 EXECUTE stmt;
 DEALLOCATE PREPARE stmt;
 
+SET @sql_su_major = (
+    SELECT IF(
+        (SELECT COUNT(*) FROM information_schema.COLUMNS
+         WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'sys_user' AND COLUMN_NAME = 'major') > 0,
+        'SELECT 1',
+        'ALTER TABLE sys_user ADD COLUMN major VARCHAR(64) DEFAULT NULL COMMENT ''专业'''
+    )
+);
+PREPARE stmt FROM @sql_su_major;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SET @sql_su_grade = (
+    SELECT IF(
+        (SELECT COUNT(*) FROM information_schema.COLUMNS
+         WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'sys_user' AND COLUMN_NAME = 'grade') > 0,
+        'SELECT 1',
+        'ALTER TABLE sys_user ADD COLUMN grade VARCHAR(16) DEFAULT NULL COMMENT ''年级'''
+    )
+);
+PREPARE stmt FROM @sql_su_grade;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SET @sql_su_class_name = (
+    SELECT IF(
+        (SELECT COUNT(*) FROM information_schema.COLUMNS
+         WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'sys_user' AND COLUMN_NAME = 'class_name') > 0,
+        'SELECT 1',
+        'ALTER TABLE sys_user ADD COLUMN class_name VARCHAR(64) DEFAULT NULL COMMENT ''班级名称'''
+    )
+);
+PREPARE stmt FROM @sql_su_class_name;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SET @sql_su_email = (
+    SELECT IF(
+        (SELECT COUNT(*) FROM information_schema.COLUMNS
+         WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'sys_user' AND COLUMN_NAME = 'email') > 0,
+        'SELECT 1',
+        'ALTER TABLE sys_user ADD COLUMN email VARCHAR(255) DEFAULT NULL COMMENT ''邮箱'''
+    )
+);
+PREPARE stmt FROM @sql_su_email;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SET @sql_su_phone = (
+    SELECT IF(
+        (SELECT COUNT(*) FROM information_schema.COLUMNS
+         WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'sys_user' AND COLUMN_NAME = 'phone') > 0,
+        'SELECT 1',
+        'ALTER TABLE sys_user ADD COLUMN phone VARCHAR(32) DEFAULT NULL COMMENT ''手机'''
+    )
+);
+PREPARE stmt FROM @sql_su_phone;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SET @sql_su_taught = (
+    SELECT IF(
+        (SELECT COUNT(*) FROM information_schema.COLUMNS
+         WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'sys_user' AND COLUMN_NAME = 'taught_subjects') > 0,
+        'SELECT 1',
+        'ALTER TABLE sys_user ADD COLUMN taught_subjects TEXT DEFAULT NULL COMMENT ''教师所教课程 JSON'''
+    )
+);
+PREPARE stmt FROM @sql_su_taught;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SET @sql_su_scopes = (
+    SELECT IF(
+        (SELECT COUNT(*) FROM information_schema.COLUMNS
+         WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'sys_user' AND COLUMN_NAME = 'teaching_scopes') > 0,
+        'SELECT 1',
+        'ALTER TABLE sys_user ADD COLUMN teaching_scopes TEXT DEFAULT NULL COMMENT ''教师教学板块 JSON'''
+    )
+);
+PREPARE stmt FROM @sql_su_scopes;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
 SET @sql_ct_subject = (
     SELECT IF(
         (SELECT COUNT(*) FROM information_schema.COLUMNS
