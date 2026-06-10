@@ -27,11 +27,14 @@ CREATE TABLE IF NOT EXISTS travel_reminder (
     email VARCHAR(100) DEFAULT NULL COMMENT '通知邮箱',
     description TEXT COMMENT '备注信息',
     reminder_minutes INT DEFAULT 15 COMMENT '提前提醒分钟数',
+    repeat_daily TINYINT(1) DEFAULT 0 COMMENT '是否每天重复',
+    notified_at DATETIME DEFAULT NULL COMMENT '已发送提醒时间',
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
     INDEX idx_event_date (event_date),
     INDEX idx_event_time (event_time),
-    INDEX idx_email (email)
+    INDEX idx_email (email),
+    INDEX idx_notified_at (notified_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='学习/日程提醒表';
 
 -- ---------------------------------------------------------------------------

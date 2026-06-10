@@ -48,6 +48,11 @@
             maxlength="120"
           />
         </label>
+
+        <label class="cf-field cf-field-full cf-check-row">
+          <input v-model="repeatDaily" type="checkbox" />
+          <span>每天同一时刻重复提醒</span>
+        </label>
       </div>
 
       <button type="button" class="cf-more-toggle" @click="showMore = !showMore">
@@ -92,6 +97,7 @@ const location = ref('');
 const notes = ref('');
 const email = ref('');
 const advanceNotice = ref('30');
+const repeatDaily = ref(false);
 const showMore = ref(false);
 
 const emailLooksValid = computed(() => {
@@ -113,7 +119,8 @@ const hadPrefill = computed(() => {
     (p.advanceNotice != null && p.advanceNotice !== '') ||
     p.location ||
     p.notes ||
-    p.email
+    p.email ||
+    p.repeatDaily
   );
 });
 
@@ -134,6 +141,7 @@ function applyPrefill(p) {
   if (p.location) location.value = String(p.location).trim();
   if (p.notes) notes.value = String(p.notes).trim();
   if (p.email) email.value = String(p.email).trim();
+  if (p.repeatDaily) repeatDaily.value = true;
   if (p.location || p.notes) showMore.value = true;
 }
 
@@ -150,7 +158,8 @@ function submit() {
     location: location.value,
     notes: notes.value,
     email: email.value.trim(),
-    advanceNotice: advanceNotice.value
+    advanceNotice: advanceNotice.value,
+    repeatDaily: repeatDaily.value
   });
 }
 </script>

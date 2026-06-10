@@ -27,6 +27,9 @@ public class TravelReminderParams {
     @JsonAlias({"advanceNotice", "advance_notice", "minutesBefore", "minutes_before"})
     private String advanceNotice;
 
+    @JsonAlias({"repeatDaily", "repeat_daily", "daily", "recurring"})
+    private Boolean repeatDaily;
+
     private Object remindTime;
     private String notifyMethod;
 }

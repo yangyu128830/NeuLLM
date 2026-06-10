@@ -8,6 +8,7 @@ COPY NeuLLMDev/src src
 RUN mvn -DskipTests -B package
 
 FROM eclipse-temurin:17-jre-jammy
+ENV TZ=Asia/Shanghai
 WORKDIR /app
 COPY --from=build /app/target/*.jar app.jar
 EXPOSE 8080

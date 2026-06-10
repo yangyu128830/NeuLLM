@@ -246,3 +246,27 @@ SET @sql_ct_target_class = (
 PREPARE stmt FROM @sql_ct_target_class;
 EXECUTE stmt;
 DEALLOCATE PREPARE stmt;
+
+SET @sql_tr_repeat = (
+    SELECT IF(
+        (SELECT COUNT(*) FROM information_schema.COLUMNS
+         WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'travel_reminder' AND COLUMN_NAME = 'repeat_daily') > 0,
+        'SELECT 1',
+        'ALTER TABLE travel_reminder ADD COLUMN repeat_daily TINYINT(1) DEFAULT 0 COMMENT ''是否每天重复'''
+    )
+);
+PREPARE stmt FROM @sql_tr_repeat;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;
+
+SET @sql_tr_notified = (
+    SELECT IF(
+        (SELECT COUNT(*) FROM information_schema.COLUMNS
+         WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'travel_reminder' AND COLUMN_NAME = 'notified_at') > 0,
+        'SELECT 1',
+        'ALTER TABLE travel_reminder ADD COLUMN notified_at DATETIME DEFAULT NULL COMMENT ''已发送提醒时间'''
+    )
+);
+PREPARE stmt FROM @sql_tr_notified;
+EXECUTE stmt;
+DEALLOCATE PREPARE stmt;

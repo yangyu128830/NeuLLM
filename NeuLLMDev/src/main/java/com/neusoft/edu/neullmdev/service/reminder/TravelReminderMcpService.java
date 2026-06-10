@@ -82,6 +82,7 @@ public class TravelReminderMcpService {
             reminder.setPhoneNumber(fields.phoneNumber());
             reminder.setDescription(fields.description());
             reminder.setReminderMinutes(advanceMin);
+            reminder.setRepeatDaily(resolveRepeatDaily(params, userInput));
             reminder.setCreatedAt(LocalDateTime.now());
             reminder.setUpdatedAt(LocalDateTime.now());
 
@@ -104,7 +105,8 @@ public class TravelReminderMcpService {
                 emailSentNow = emailAck != null && emailAck.contains("成功");
             }
 
-            String hint = buildUserHint(fields, advanceMin, persistedOk, emailSentNow);
+            String hint = buildUserHint(fields, advanceMin, persistedOk, emailSentNow,
+                    Boolean.TRUE.equals(reminder.getRepeatDaily()));
             String json = responseFactory.successJson(
                     fields, eventDateTime, reminderDateTime, advanceMin,
                     persistedOk, emailSentNow, emailAck, hint);
@@ -124,11 +126,27 @@ public class TravelReminderMcpService {
         }
     }
 
+    private static boolean resolveRepeatDaily(TravelReminderParams params, String userInput) {
+        if (params != null && params.getRepeatDaily() != null) {
+            return Boolean.TRUE.equals(params.getRepeatDaily());
+        }
+        if (userInput != null && userInput.matches(".*(每天|每晚|每天晚上|每个晚上).*")) {
+            return true;
+        }
+        return false;
+    }
+
     private static String buildUserHint(
             ReminderResolvedFields fields,
             int advanceMinutes,
             boolean persistedOk,
-            boolean emailSentNow) {
+            boolean emailSentNow,
+            boolean repeatDaily) {
+        if (repeatDaily && persistedOk) {
+            return "已开启每天重复；到点前 "
+                    + advanceMinutes + " 分钟会发邮件提醒你（需填写有效邮箱）。"
+                    + (emailSentNow ? " 确认邮件已发送。" : "");
+        }
         if (emailSentNow) {
             return "已按你的邮箱发送一封确认邮件；到点前 "
                     + advanceMinutes + " 分钟还会由定时任务再提醒你一次（若服务已配置邮箱）。";

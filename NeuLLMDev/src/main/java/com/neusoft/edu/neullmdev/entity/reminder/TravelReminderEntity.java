@@ -14,6 +14,8 @@ public class TravelReminderEntity {
     private String email;
     private String description;
     private Integer reminderMinutes;
+    private Boolean repeatDaily;
+    private LocalDateTime notifiedAt;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
@@ -79,6 +81,22 @@ public class TravelReminderEntity {
 
     public void setReminderMinutes(Integer reminderMinutes) {
         this.reminderMinutes = reminderMinutes;
+    }
+
+    public Boolean getRepeatDaily() {
+        return repeatDaily;
+    }
+
+    public void setRepeatDaily(Boolean repeatDaily) {
+        this.repeatDaily = repeatDaily;
+    }
+
+    public LocalDateTime getNotifiedAt() {
+        return notifiedAt;
+    }
+
+    public void setNotifiedAt(LocalDateTime notifiedAt) {
+        this.notifiedAt = notifiedAt;
     }
 
     public LocalDateTime getCreatedAt() {

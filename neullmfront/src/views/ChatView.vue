@@ -778,7 +778,8 @@ function parseReminderPrefill(raw) {
     advanceNotice: null,
     location: null,
     notes: null,
-    email: null
+    email: null,
+    repeatDaily: false
   };
   if (!text) return out;
   if (/不要提醒|别提醒|取消提醒/.test(text)) return out;
@@ -854,9 +855,7 @@ function parseReminderPrefill(raw) {
   }
 
   if (/每天|每晚|每天晚上|每个晚上/.test(text)) {
-    out.notes =
-      (out.notes ? `${out.notes}\n` : '') +
-      '你提到了「每天」：这里先记下这一次的时间；若要天天同一时刻，保存后可再在列表里按需复制或配合日历重复。';
+    out.repeatDaily = true;
   }
 
   m = text.match(/在\s*([^，。\s]{2,18})\s*(?:学习|看书|复习|背单词|自习)/);
@@ -1002,6 +1001,7 @@ function buildTravelReminderMcpParams(data) {
   };
   if (data.datetime) params.datetime = data.datetime;
   if (data.email?.trim()) params.email = data.email.trim();
+  if (data.repeatDaily) params.repeatDaily = true;
   if (data.phoneNumber?.trim()) params.phoneNumber = data.phoneNumber.trim();
   const descParts = [];
   if (data.location?.trim()) descParts.push('地点：' + data.location.trim());
