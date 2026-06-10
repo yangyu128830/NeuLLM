@@ -86,8 +86,16 @@ public class SubmissionGradingAssistService {
         String studentNo = student != null ? student.getStudentNo() : "";
 
         String userPrompt = buildUserPrompt(task, subTask, sub, studentName, studentNo);
-        String raw = kimiChatService.chatWithSystem(SYSTEM_PROMPT, userPrompt, 0.25)
-                .block(Duration.ofSeconds(90));
+        String raw;
+        try {
+            raw = kimiChatService.chatWithSystem(SYSTEM_PROMPT, userPrompt, 0.25)
+                    .block(Duration.ofSeconds(120));
+        } catch (IllegalStateException e) {
+            if (e.getMessage() != null && e.getMessage().contains("Timeout")) {
+                throw new IllegalStateException("AI 响应超时（海外服务器访问百炼较慢），请稍后重试");
+            }
+            throw e;
+        }
         if (raw == null || raw.isBlank()) {
             throw new IllegalStateException("AI 未返回结果，请稍后重试");
         }

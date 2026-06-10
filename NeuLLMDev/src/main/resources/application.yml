@@ -95,7 +95,9 @@ app:
   llm:
     api-key: ${DASHSCOPE_API_KEY:sk-6e5996ac06634f13abaa35c6e79838ea}
     base-url: https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions
-    model: qwen-plus
+    model: qwen-turbo
+    connect-timeout-ms: 15000
+    read-timeout-ms: 120000
     # 普通重试：主要覆盖 5xx / 网络抖动（4xx 里除 429 外不重试）。
     max-retries: 1
     retry-backoff-ms: 1200

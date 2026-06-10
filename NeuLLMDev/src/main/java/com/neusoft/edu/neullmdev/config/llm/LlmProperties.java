@@ -13,7 +13,7 @@ public class LlmProperties {
     /** 完整 Chat Completions URL，例如 https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions */
     private String baseUrl = "https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions";
 
-    private String model = "qwen-plus";
+    private String model = "qwen-turbo";
 
     private int maxRetries = 3;
 
@@ -26,6 +26,12 @@ public class LlmProperties {
 
     /** 429 首次重试前的等待基数（毫秒），后续按指数退避并带上限。 */
     private long retry429InitialDelayMs = 4000L;
+
+    /** 连接百炼 API 超时（毫秒） */
+    private int connectTimeoutMs = 15000;
+
+    /** 等待百炼响应超时（毫秒）；Railway 跨境调用建议 120000+ */
+    private long readTimeoutMs = 120000L;
 
     public String resolveWebClientBaseUrl() {
         return splitEndpoint(baseUrl).base();
@@ -115,5 +121,21 @@ public class LlmProperties {
 
     public void setRetry429InitialDelayMs(long retry429InitialDelayMs) {
         this.retry429InitialDelayMs = retry429InitialDelayMs;
+    }
+
+    public int getConnectTimeoutMs() {
+        return connectTimeoutMs;
+    }
+
+    public void setConnectTimeoutMs(int connectTimeoutMs) {
+        this.connectTimeoutMs = connectTimeoutMs;
+    }
+
+    public long getReadTimeoutMs() {
+        return readTimeoutMs;
+    }
+
+    public void setReadTimeoutMs(long readTimeoutMs) {
+        this.readTimeoutMs = readTimeoutMs;
     }
 }
