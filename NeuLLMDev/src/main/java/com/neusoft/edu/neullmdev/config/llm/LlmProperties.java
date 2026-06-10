@@ -4,16 +4,16 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 
 import java.net.URI;
 
-/** Kimi：通过 Moonshot {@code /v1/chat/completions} 调用。 */
+/** 大模型 Chat Completions 配置（默认阿里云百炼 DashScope 兼容模式）。 */
 @ConfigurationProperties(prefix = "app.llm")
 public class LlmProperties {
 
     private String apiKey = "";
 
-    /** 完整 Chat Completions URL，例如 https://api.moonshot.cn/v1/chat/completions */
-    private String baseUrl = "https://api.moonshot.cn/v1/chat/completions";
+    /** 完整 Chat Completions URL，例如 https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions */
+    private String baseUrl = "https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions";
 
-    private String model = "moonshot-v1-32k";
+    private String model = "qwen-plus";
 
     private int maxRetries = 3;
 
@@ -41,12 +41,12 @@ public class LlmProperties {
 
     private static EndpointParts splitEndpoint(String endpointUrl) {
         if (endpointUrl == null || endpointUrl.isBlank()) {
-            return new EndpointParts("https://api.moonshot.cn", "/v1/chat/completions");
+            return new EndpointParts("https://dashscope.aliyuncs.com", "/compatible-mode/v1/chat/completions");
         }
         URI u = URI.create(endpointUrl.trim());
         String authority = u.getRawAuthority();
         if (authority == null) {
-            return new EndpointParts("https://api.moonshot.cn", "/v1/chat/completions");
+            return new EndpointParts("https://dashscope.aliyuncs.com", "/compatible-mode/v1/chat/completions");
         }
         String base = u.getScheme() + "://" + authority;
         String path = u.getPath();

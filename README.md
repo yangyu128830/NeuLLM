@@ -62,7 +62,7 @@ npm run dev
 | `MYSQLUSER` | `${{MySQL.MYSQLUSER}}` |
 | `MYSQLPASSWORD` | `${{MySQL.MYSQLPASSWORD}}` |
 | `MYSQLDATABASE` | `${{MySQL.MYSQLDATABASE}}` |
-| `MOONSHOT_API_KEY` | 你的 Kimi API Key（手动填写） |
+| `DASHSCOPE_API_KEY` | 阿里云百炼 API Key（手动填写） |
 | `APP_CORS_ORIGINS` | `https://neu-llm.vercel.app` |
 
 > 也可用手动 `SPRING_DATASOURCE_URL` / `USERNAME` / `PASSWORD` 覆盖，不必重复配置。

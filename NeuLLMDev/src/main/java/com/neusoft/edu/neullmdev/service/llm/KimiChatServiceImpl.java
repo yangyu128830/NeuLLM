@@ -85,7 +85,7 @@ public class KimiChatServiceImpl implements KimiChatService {
                                 .put("content", userContent)))
                 .put("temperature", 0.6);
 
-        log.debug("调用 Kimi，系统提示: {}...",
+        log.debug("调用 LLM，系统提示: {}...",
                 systemPrompt.substring(0, Math.min(200, systemPrompt.length())));
 
         Mono<String> call = llmWebClient.post()
@@ -101,7 +101,7 @@ public class KimiChatServiceImpl implements KimiChatService {
                             log.warn("解析 LLM 响应为空，原始: {}", raw.substring(0, Math.min(500, raw.length())));
                             return "解析响应出错: 未识别模型返回格式";
                         }
-                        log.debug("Kimi 返回内容长度: {}", content.length());
+                        log.debug("LLM 返回内容长度: {}", content.length());
                         return content;
                     } catch (Exception e) {
                         log.error("解析 LLM 响应出错: {}，原始响应: {}", e.getMessage(), raw, e);

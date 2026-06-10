@@ -82,8 +82,8 @@ sms:
   api-url: "https://api.neekoft.com/sms/send"
   api-key: "neullm-sms-key-2024"
 
-# 大模型：Kimi（Moonshot https://api.moonshot.cn/v1/chat/completions）
-# 生产环境建议 api-key 使用环境变量，例如 api-key: ${MOONSHOT_API_KEY:}
+# 大模型：阿里云百炼（DashScope OpenAI 兼容模式）
+# 密钥优先用环境变量 DASHSCOPE_API_KEY；Railway / 生产勿提交明文密钥
 app:
   storage:
     artifact-dir: ${ARTIFACT_DIR:data/artifacts}
@@ -93,13 +93,13 @@ app:
   auth:
     session-hours: 72
   llm:
-    api-key: ${MOONSHOT_API_KEY:sk-4xTzitt2R2BLmmcs2xPOZr5LzDOpaxak8VQaHg7t8typIgw4}
-    base-url: https://api.moonshot.cn/v1/chat/completions
-    model: moonshot-v1-32k
+    api-key: ${DASHSCOPE_API_KEY:sk-6e5996ac06634f13abaa35c6e79838ea}
+    base-url: https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions
+    model: qwen-plus
     # 普通重试：主要覆盖 5xx / 网络抖动（4xx 里除 429 外不重试）。
     max-retries: 1
     retry-backoff-ms: 1200
-    # 429 限流：Moonshot 按 RPM/TPM/并发等维度限流，短时突发可自动退避重试几次；仍失败则需降频或控制台升级额度。
+    # 429 限流：DashScope 按 RPM/TPM 限流，短时突发可自动退避重试。
     retry-429-max-attempts: 2
     retry-429-initial-delay-ms: 4000
 

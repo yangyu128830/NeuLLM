@@ -8,7 +8,7 @@ public final class LlmResponseParser {
     private LlmResponseParser() {}
 
     /**
-     * 解析 Moonshot（Kimi）Chat Completions 响应中的助手正文：{@code choices[0].message.content}。
+     * 解析 Chat Completions 响应中的助手正文：{@code choices[0].message.content}（OpenAI 兼容格式，适用百炼/Kimi 等）。
      */
     public static String assistantContent(String raw) {
         try {
