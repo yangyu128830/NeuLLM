@@ -1,45 +1,29 @@
 <!-- 学生消息中心页面（路由 /messages，对应 router/index.js 的 StudentMessages） -->
 <template>
   <div class="student-page classroom-theme messages-page">
-    <header class="topbar">
-      <div class="topbar-inner page-inner">
-        <div class="brand">
-          <span class="brand-icon"><i class="fas fa-bell"></i></span>
-          <div>
-            <p class="brand-tag">智学伴 · 学生端</p>
-            <h1>消息中心</h1>
-            <p class="subtitle">作业催交、新任务、批改结果与活动通知</p>
-          </div>
-        </div>
-        <div class="header-actions">
-          <button
-            type="button"
-            class="btn-outline"
-            :disabled="loading"
-            @click="load"
-          >
-            <i class="fas fa-rotate-right" :class="{ 'fa-spin': loading }"></i> 刷新
-          </button>
-          <!-- 有未读时才显示「全部已读」按钮，unread 来自 unreadCount 接口 -->
-          <button
-            v-if="unread > 0"
-            type="button"
-            class="btn-ghost"
-            :disabled="markingAll"
-            @click="markAllRead"
-          >
-            <i class="fas fa-check-double"></i> 全部已读
-          </button>
-          <router-link to="/assignments" class="btn-ghost">
-            <i class="fas fa-book-open"></i> 我的作业
-          </router-link>
-          <router-link to="/chat" class="btn-ghost">
-            <i class="fas fa-comments"></i> 学习助手
-          </router-link>
-          <button type="button" class="btn-outline" @click="logout">退出</button>
-        </div>
-      </div>
-    </header>
+    <StudentPageHeader
+      title="消息中心"
+      subtitle="作业催交、新任务、批改结果与活动通知"
+      icon="fa-bell"
+      active="messages"
+      :unread-count="unread"
+      @logout="logout"
+    >
+      <template #actions>
+        <button type="button" class="btn-outline slot-btn" :disabled="loading" @click="load">
+          <i class="fas fa-rotate-right" :class="{ 'fa-spin': loading }"></i> 刷新
+        </button>
+        <button
+          v-if="unread > 0"
+          type="button"
+          class="btn-ghost slot-btn"
+          :disabled="markingAll"
+          @click="markAllRead"
+        >
+          <i class="fas fa-check-double"></i> 全部已读
+        </button>
+      </template>
+    </StudentPageHeader>
 
     <main class="content page-inner">
       <!-- 工具栏：顶部「N 条未读」胶囊，数据来自 notificationsApi.unreadCount() -->
@@ -135,9 +119,11 @@
  */
 import { computed, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
+import StudentPageHeader from '@/components/student/StudentPageHeader.vue';
 import notificationsApi from '@/services/notificationsApi';
 import authApi from '@/services/authApi';
 import { clearAuth, getUser } from '@/stores/auth';
+import { formatApiDateTime } from '@/utils/datetime';
 
 const router = useRouter();
 const loading = ref(true);
@@ -227,10 +213,7 @@ async function markAllRead() {
 }
 
 function formatTime(t) {
-  if (!t) return '';
-  const d = new Date(t);
-  if (Number.isNaN(d.getTime())) return String(t);
-  return d.toLocaleString('zh-CN', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+  return formatApiDateTime(t, { style: 'short' });
 }
 
 async function logout() {

@@ -43,6 +43,9 @@ public interface SysUserMapper {
             + "FROM sys_user WHERE role = 'STUDENT' AND class_id = #{classId} AND student_no = #{studentNo} LIMIT 1")
     SysUserEntity findStudentByClassAndNo(@Param("classId") String classId, @Param("studentNo") String studentNo);
 
+    @Select("SELECT " + USER_COLS + "FROM sys_user WHERE student_no = #{studentNo} LIMIT 1")
+    SysUserEntity findByStudentNo(@Param("studentNo") String studentNo);
+
     @Update("UPDATE sys_user SET username = #{username}, display_name = #{displayName}, "
             + "student_no = #{studentNo}, major = #{major}, grade = #{grade}, class_name = #{className}, "
             + "email = #{email}, phone = #{phone}, taught_subjects = #{taughtSubjects}, "

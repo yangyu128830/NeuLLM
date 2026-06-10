@@ -1,27 +1,13 @@
 <template>
   <div class="student-page classroom-theme">
-    <header class="topbar">
-      <div class="topbar-inner page-inner">
-        <div class="brand">
-          <span class="brand-icon"><i class="fas fa-book-open"></i></span>
-          <div>
-            <p class="brand-tag">智学伴 · 学生端</p>
-            <h1>我的作业</h1>
-            <p class="subtitle">查看任务说明 · 上传成果物（docx/pdf/txt/md，单文件 ≤20MB）· 等待教师批改</p>
-          </div>
-        </div>
-        <div class="header-actions">
-          <router-link to="/messages" class="btn-ghost nav-with-badge">
-            <i class="fas fa-bell"></i> 消息中心
-            <span v-if="unreadCount > 0" class="nav-badge">{{ unreadCount > 99 ? '99+' : unreadCount }}</span>
-          </router-link>
-          <router-link to="/chat" class="btn-ghost">
-            <i class="fas fa-comments"></i> 学习助手
-          </router-link>
-          <button type="button" class="btn-outline" @click="logout">退出</button>
-        </div>
-      </div>
-    </header>
+    <StudentPageHeader
+      title="我的作业"
+      subtitle="查看任务说明 · 上传成果物（docx/pdf/txt/md，单文件 ≤20MB）· 等待教师批改"
+      icon="fa-book-open"
+      active="assignments"
+      :unread-count="unreadCount"
+      @logout="logout"
+    />
 
     <main class="content page-inner">
       <div v-if="loading" class="state-box">
@@ -91,10 +77,12 @@
 <script setup>
 import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
+import StudentPageHeader from '@/components/student/StudentPageHeader.vue';
 import classroomApi from '../../services/classroomApi';
 import notificationsApi from '../../services/notificationsApi';
 import authApi from '../../services/authApi';
 import { clearAuth } from '../../stores/auth';
+import { formatApiDateTime } from '../../utils/datetime';
 
 const router = useRouter();
 const tasks = ref([]);
@@ -119,9 +107,7 @@ function statusClass(sub) {
 
 function formatTime(iso) {
   if (!iso) return '';
-  const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return String(iso);
-  return d.toLocaleString('zh-CN', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
+  return formatApiDateTime(iso, { style: 'short' });
 }
 
 function formatSize(bytes) {

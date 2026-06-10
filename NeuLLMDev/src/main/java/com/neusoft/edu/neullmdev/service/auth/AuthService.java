@@ -6,6 +6,7 @@ import com.neusoft.edu.neullmdev.auth.UserRole;
 import com.neusoft.edu.neullmdev.dto.auth.AuthResponse;
 import com.neusoft.edu.neullmdev.dto.auth.LoginRequest;
 import com.neusoft.edu.neullmdev.dto.auth.RegisterRequest;
+import com.neusoft.edu.neullmdev.dto.auth.UpdateStudentProfileRequest;
 import com.neusoft.edu.neullmdev.dto.auth.UpdateTeacherProfileRequest;
 import com.neusoft.edu.neullmdev.dto.auth.TeachingScopeItem;
 import com.neusoft.edu.neullmdev.entity.auth.SysUserEntity;
@@ -146,6 +147,56 @@ public class AuthService {
         return teacherProfileVo(sysUserMapper.findById(user.getId()));
     }
 
+    public Map<String, Object> getStudentProfile() {
+        SysUserEntity user = requireStudentUser();
+        return studentProfileVo(user);
+    }
+
+    @Transactional
+    public Map<String, Object> updateStudentProfile(UpdateStudentProfileRequest request) {
+        SysUserEntity user = requireStudentUser();
+        String displayName = trimRequired(request.getDisplayName(), "请填写姓名");
+        String username = trimRequired(request.getUsername(), "请填写登录用户名");
+        String studentNo = trimRequired(request.getStudentNo(), "请填写学号");
+        String major = trimRequired(request.getMajor(), "请填写专业");
+        String grade = trimRequired(request.getGrade(), "请填写年级");
+        String className = trimRequired(request.getClassName(), "请填写班级");
+
+        if (!username.equals(user.getUsername())) {
+            SysUserEntity conflict = sysUserMapper.findByUsername(username);
+            if (conflict != null && !conflict.getId().equals(user.getId())) {
+                throw new IllegalArgumentException("登录用户名已被占用");
+            }
+        }
+        if (!studentNo.equals(user.getStudentNo())) {
+            SysUserEntity conflict = sysUserMapper.findByStudentNo(studentNo);
+            if (conflict != null && !conflict.getId().equals(user.getId())) {
+                throw new IllegalArgumentException("学号已被其他账号使用");
+            }
+        }
+
+        user.setDisplayName(displayName);
+        user.setUsername(username);
+        user.setStudentNo(studentNo);
+        user.setMajor(major);
+        user.setGrade(grade);
+        user.setClassName(className);
+        user.setEmail(trimOrNull(request.getEmail()));
+        user.setPhone(trimOrNull(request.getPhone()));
+
+        String password = request.getPassword();
+        if (password != null && !password.isBlank()) {
+            if (password.length() < 6) {
+                throw new IllegalArgumentException("密码至少 6 位");
+            }
+            user.setPasswordHash(passwordHasher.encode(password));
+            sysUserMapper.update(user);
+        } else {
+            sysUserMapper.updateWithoutPassword(user);
+        }
+        return studentProfileVo(sysUserMapper.findById(user.getId()));
+    }
+
     private SysUserEntity requireTeacherUser() {
         AuthUser auth = AuthContext.require();
         if (auth.role() != UserRole.TEACHER) {
@@ -156,6 +207,48 @@ public class AuthService {
             throw new IllegalArgumentException("用户不存在");
         }
         return user;
+    }
+
+    private SysUserEntity requireStudentUser() {
+        AuthUser auth = AuthContext.require();
+        if (auth.role() != UserRole.STUDENT) {
+            throw new IllegalArgumentException("仅学生可访问");
+        }
+        SysUserEntity user = sysUserMapper.findById(auth.id());
+        if (user == null) {
+            throw new IllegalArgumentException("用户不存在");
+        }
+        return user;
+    }
+
+    private Map<String, Object> studentProfileVo(SysUserEntity user) {
+        Map<String, Object> row = new LinkedHashMap<>();
+        row.put("userId", user.getId());
+        row.put("username", user.getUsername());
+        row.put("displayName", user.getDisplayName());
+        row.put("studentNo", user.getStudentNo());
+        row.put("major", user.getMajor());
+        row.put("grade", user.getGrade());
+        row.put("className", user.getClassName());
+        row.put("classId", user.getClassId());
+        row.put("email", user.getEmail());
+        row.put("phone", user.getPhone());
+        row.put("profileComplete", isStudentProfileComplete(user));
+        row.put("createdAt", user.getCreatedAt());
+        row.put("updatedAt", user.getUpdatedAt());
+        return row;
+    }
+
+    private static boolean isStudentProfileComplete(SysUserEntity user) {
+        return isFilled(user.getStudentNo())
+                && isFilled(user.getMajor())
+                && isFilled(user.getGrade())
+                && isFilled(user.getClassName())
+                && isFilled(user.getDisplayName());
+    }
+
+    private static boolean isFilled(String value) {
+        return value != null && !value.isBlank();
     }
 
     private Map<String, Object> teacherProfileVo(SysUserEntity user) {

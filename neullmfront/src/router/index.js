@@ -7,6 +7,7 @@ import LoginView from '../views/LoginView.vue';
 import RegisterView from '../views/RegisterView.vue';
 import StudentAssignmentsView from '../views/student/StudentAssignmentsView.vue';
 import StudentMessagesView from '../views/student/StudentMessagesView.vue';
+import StudentProfileView from '../views/student/StudentProfileView.vue';
 import TeacherLayout from '../layouts/TeacherLayout.vue';
 import TeacherProgressView from '../views/teacher/TeacherProgressView.vue';
 import TeacherTasksView from '../views/teacher/TeacherTasksView.vue';
@@ -44,6 +45,12 @@ const routes = [
         path: '/messages',
         name: 'StudentMessages',
         component: StudentMessagesView,
+        meta: { role: 'STUDENT' },
+    },
+    {
+        path: '/profile',
+        name: 'StudentProfile',
+        component: StudentProfileView,
         meta: { role: 'STUDENT' },
     },
     {
@@ -117,8 +124,10 @@ function applyRouteShell(to) {
     } else if (
         to.path === '/assignments' ||
         to.path === '/messages' ||
+        to.path === '/profile' ||
         to.name === 'StudentAssignments' ||
-        to.name === 'StudentMessages'
+        to.name === 'StudentMessages' ||
+        to.name === 'StudentProfile'
     ) {
         document.documentElement.classList.add('student-route');
     }

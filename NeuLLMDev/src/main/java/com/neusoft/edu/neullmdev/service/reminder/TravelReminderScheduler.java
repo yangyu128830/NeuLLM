@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
+import com.neusoft.edu.neullmdev.support.AppTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.List;
@@ -20,7 +20,6 @@ import java.util.List;
 @Service
 public class TravelReminderScheduler {
 
-    private static final ZoneId ZONE = ZoneId.of("Asia/Shanghai");
     private static final DateTimeFormatter DATETIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
     private final TravelReminderMapper travelReminderMapper;
@@ -33,7 +32,7 @@ public class TravelReminderScheduler {
 
     @Scheduled(fixedRate = 60000)
     public void checkAndSendReminders() {
-        LocalDateTime now = LocalDateTime.now(ZONE);
+        LocalDateTime now = AppTime.now();
         try {
             List<TravelReminderEntity> pending = travelReminderMapper.selectPending();
             for (TravelReminderEntity reminder : pending) {

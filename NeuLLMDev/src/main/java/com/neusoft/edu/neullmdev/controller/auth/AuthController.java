@@ -6,6 +6,7 @@ import com.neusoft.edu.neullmdev.config.web.AuthInterceptor;
 import com.neusoft.edu.neullmdev.dto.auth.AuthResponse;
 import com.neusoft.edu.neullmdev.dto.auth.LoginRequest;
 import com.neusoft.edu.neullmdev.dto.auth.RegisterRequest;
+import com.neusoft.edu.neullmdev.dto.auth.UpdateStudentProfileRequest;
 import com.neusoft.edu.neullmdev.dto.auth.UpdateTeacherProfileRequest;
 import com.neusoft.edu.neullmdev.model.api.ApiResponse;
 import com.neusoft.edu.neullmdev.service.auth.AuthService;
@@ -67,5 +68,15 @@ public class AuthController {
     @PutMapping("/teacher/profile")
     public ApiResponse<Map<String, Object>> updateTeacherProfile(@RequestBody UpdateTeacherProfileRequest request) {
         return ApiResponse.success(authService.updateTeacherProfile(request));
+    }
+
+    @GetMapping("/student/profile")
+    public ApiResponse<Map<String, Object>> studentProfile() {
+        return ApiResponse.success(authService.getStudentProfile());
+    }
+
+    @PutMapping("/student/profile")
+    public ApiResponse<Map<String, Object>> updateStudentProfile(@RequestBody UpdateStudentProfileRequest request) {
+        return ApiResponse.success(authService.updateStudentProfile(request));
     }
 }

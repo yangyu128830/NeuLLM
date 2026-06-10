@@ -60,6 +60,7 @@
               }}</span>
             </router-link>
             <router-link to="/assignments">我的作业</router-link>
+            <router-link to="/profile">个人中心</router-link>
           </template>
           <button type="button" class="nav-btn" @click="handleLogout">退出</button>
         </nav>

@@ -27,4 +27,10 @@ export default {
   updateTeacherProfile(data) {
     return http.put('/api/auth/teacher/profile', data).then(unwrap);
   },
+  getStudentProfile() {
+    return http.get('/api/auth/student/profile').then(unwrap);
+  },
+  updateStudentProfile(data) {
+    return http.put('/api/auth/student/profile', data).then(unwrap);
+  },
 };

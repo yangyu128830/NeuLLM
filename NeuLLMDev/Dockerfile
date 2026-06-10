@@ -7,7 +7,8 @@ COPY src src
 RUN mvn -DskipTests -B package
 
 FROM eclipse-temurin:17-jre-jammy
+ENV TZ=Asia/Shanghai
 WORKDIR /app
 COPY --from=build /app/target/*.jar app.jar
 EXPOSE 8080
-ENTRYPOINT ["java", "-jar", "app.jar"]
+ENTRYPOINT ["java", "-Duser.timezone=Asia/Shanghai", "-jar", "app.jar"]

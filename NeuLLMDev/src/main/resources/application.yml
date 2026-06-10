@@ -1,6 +1,8 @@
 spring:
   application:
     name: NeuLLMDev
+  jackson:
+    time-zone: Asia/Shanghai
   # LiveReload 默认 35729，多实例/多项目时易冲突；换端口或设 DEVTOOLS_LIVERELOAD_PORT
   devtools:
     livereload:

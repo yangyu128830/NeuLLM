@@ -3,6 +3,7 @@ import { useRouter } from 'vue-router';
 import classroomApi from '../services/classroomApi';
 import authApi from '../services/authApi';
 import { clearAuth } from '../stores/auth';
+import { compareApiDateTime, formatApiDateTime, toDatetimeLocalFromApi } from '../utils/datetime';
 
 export const TEACHER_CLASSROOM_KEY = Symbol('teacherClassroom');
 
@@ -183,10 +184,7 @@ export function createTeacherClassroom() {
   }
 
   function formatSubmittedAt(iso) {
-    if (!iso) return '—';
-    const d = new Date(iso);
-    if (Number.isNaN(d.getTime())) return String(iso);
-    return d.toLocaleString('zh-CN');
+    return formatApiDateTime(iso);
   }
 
   const statusLabels = {
@@ -249,11 +247,7 @@ export function createTeacherClassroom() {
   }
 
   function toDatetimeLocal(value) {
-    if (!value) return '';
-    const d = new Date(value);
-    if (Number.isNaN(d.getTime())) return '';
-    const pad = (n) => String(n).padStart(2, '0');
-    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+    return toDatetimeLocalFromApi(value);
   }
 
   function fromDatetimeLocal(value) {
@@ -262,10 +256,7 @@ export function createTeacherClassroom() {
   }
 
   function formatTaskDateTime(value) {
-    if (!value) return '—';
-    const d = new Date(value);
-    if (Number.isNaN(d.getTime())) return String(value);
-    return d.toLocaleString('zh-CN', { hour12: false });
+    return formatApiDateTime(value);
   }
 
   function clearTaskDraftAssist() {
@@ -372,7 +363,7 @@ export function createTeacherClassroom() {
     const subTasks = lines.map((title) => ({ title, description: `请提交「${title}」成果物。` }));
     const startTime = fromDatetimeLocal(taskForm.startTime);
     const endTime = fromDatetimeLocal(taskForm.endTime);
-    if (startTime && endTime && new Date(endTime) < new Date(startTime)) {
+    if (startTime && endTime && compareApiDateTime(endTime, startTime) < 0) {
       showToast('截至时间不能早于开始时间', false);
       return null;
     }
