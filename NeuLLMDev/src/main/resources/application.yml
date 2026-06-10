@@ -88,8 +88,8 @@ app:
   storage:
     artifact-dir: ${ARTIFACT_DIR:data/artifacts}
   cors:
-    # 逗号分隔，生产示例：https://neu-llm.vercel.app,https://your-domain.com
-    origins: ${APP_CORS_ORIGINS:http://localhost:5180,http://127.0.0.1:5180,https://neu-llm.vercel.app}
+    # 逗号分隔；Railway 可用 APP_CORS_ORIGINS 覆盖
+    origins: ${APP_CORS_ORIGINS:http://localhost:5180,http://127.0.0.1:5180,https://neu-llm.vercel.app,https://zhixueban.help,https://www.zhixueban.help}
   auth:
     session-hours: 72
   llm:
