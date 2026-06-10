@@ -51,26 +51,27 @@ npm run dev
 1. 打开 [Railway](https://railway.app)，用 GitHub 登录
 2. **New Project** → **Deploy from GitHub repo** → 选择 `NeuLLM`
 3. **Add Service** → **Database** → **MySQL**（记下连接信息）
-4. 再 **Add Service** → 同一仓库，设置：
-   - **Root Directory**：`NeuLLMDev`
-   - Railway 会检测到 `Dockerfile` 并自动构建
+4. 再 **Add Service** → 同一仓库（NeuLLM 后端），**Root Directory 留空**（使用根目录 `Dockerfile`）
 
-5. 在后端服务的 **Variables** 里添加：
+5. 在后端服务 **Variables** 里，点击 **Add Reference** 引用 MySQL 服务的变量（假设 MySQL 服务名为 `MySQL`）：
 
-| 变量 | 说明 |
-|------|------|
-| `SPRING_DATASOURCE_URL` | MySQL 连接串，如 `jdbc:mysql://host:port/railway?characterEncoding=utf-8&serverTimezone=Asia/Shanghai` |
-| `SPRING_DATASOURCE_USERNAME` | MySQL 用户名 |
-| `SPRING_DATASOURCE_PASSWORD` | MySQL 密码 |
-| `SERVER_PORT` | `8080`（Railway 默认端口） |
-| `MOONSHOT_API_KEY` | Kimi 大模型 API Key |
-| `APP_CORS_ORIGINS` | `https://neu-llm.vercel.app`（你的 Vercel 域名，多个用逗号分隔） |
+| 变量 | 值（Reference） |
+|------|----------------|
+| `MYSQLHOST` | `${{MySQL.MYSQLHOST}}` |
+| `MYSQLPORT` | `${{MySQL.MYSQLPORT}}` |
+| `MYSQLUSER` | `${{MySQL.MYSQLUSER}}` |
+| `MYSQLPASSWORD` | `${{MySQL.MYSQLPASSWORD}}` |
+| `MYSQLDATABASE` | `${{MySQL.MYSQLDATABASE}}` |
+| `MOONSHOT_API_KEY` | 你的 Kimi API Key（手动填写） |
+| `APP_CORS_ORIGINS` | `https://neu-llm.vercel.app` |
 
-6. 部署完成后，在 Railway 后端服务 → **Settings** → **Networking** → **Generate Domain**，得到公网地址，例如 `https://neullm-dev-production.up.railway.app`
+> 也可用手动 `SPRING_DATASOURCE_URL` / `USERNAME` / `PASSWORD` 覆盖，不必重复配置。
 
-> **构建失败排查**：若出现 `Failed to build an image`，请确认 (1) 已 push 最新代码（含根目录 `Dockerfile` + `railway.toml`），(2) 服务 **Root Directory** 留空（用根目录 Dockerfile）或设为 `NeuLLMDev`（用子目录 Dockerfile），(3) **Variables** 已配置 MySQL 连接信息。
+6. **Settings** → **Networking** → **Generate Domain**，得到公网地址
 
-7. 浏览器访问 `https://你的后端域名/api/auth/login` 应返回 405 或 JSON（说明后端已上线）
+> **Crashed 排查**：构建成功但状态 Crashed，通常是 (1) **未配置 MySQL 变量**（默认连 localhost 会失败），(2) 未 Generate Domain。应用已支持 Railway 的 `PORT` 环境变量。
+
+7. 浏览器访问 `https://你的后端域名/api/auth/login`，GET 返回 405 说明后端已上线
 
 ### 第三步：Vercel 连接后端
 

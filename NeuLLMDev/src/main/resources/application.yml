@@ -7,10 +7,10 @@ spring:
       port: ${DEVTOOLS_LIVERELOAD_PORT:35247}
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    # 生产环境用 SPRING_DATASOURCE_* 覆盖；本地默认连 localhost
-    url: ${SPRING_DATASOURCE_URL:jdbc:mysql://localhost:3306/neusoftllm?characterEncoding=utf-8&serverTimezone=Asia/Shanghai&createDatabaseIfNotExist=true}
-    username: ${SPRING_DATASOURCE_USERNAME:root}
-    password: ${SPRING_DATASOURCE_PASSWORD:123456}
+    # 生产：SPRING_DATASOURCE_* 或 Railway MySQL 的 MYSQL* 变量
+    url: ${SPRING_DATASOURCE_URL:jdbc:mysql://${MYSQLHOST:localhost}:${MYSQLPORT:3306}/${MYSQLDATABASE:neusoftllm}?characterEncoding=utf-8&serverTimezone=Asia/Shanghai&createDatabaseIfNotExist=true}
+    username: ${SPRING_DATASOURCE_USERNAME:${MYSQLUSER:root}}
+    password: ${SPRING_DATASOURCE_PASSWORD:${MYSQLPASSWORD:123456}}
   sql:
     init:
       mode: always
@@ -47,8 +47,8 @@ spring:
       max-request-size: ${CLASSROOM_MAX_REQUEST_SIZE:25MB}
 
 server:
-  # 与 neullmfront（api.js / ChatView）中的 localhost:8082 一致；可用 SERVER_PORT 覆盖
-  port: ${SERVER_PORT:8082}
+  # Railway 注入 PORT；本地默认 8082（与 neullmfront 一致）
+  port: ${PORT:${SERVER_PORT:8082}}
   tomcat:
     # 默认仅 1MB，作业 docx/pdf 上传需放宽（与 spring.servlet.multipart 保持一致）
     max-http-form-post-size: 25MB

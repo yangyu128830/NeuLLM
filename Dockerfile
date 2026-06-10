@@ -11,5 +11,4 @@ FROM eclipse-temurin:17-jre-jammy
 WORKDIR /app
 COPY --from=build /app/target/*.jar app.jar
 EXPOSE 8080
-ENV SERVER_PORT=8080
 ENTRYPOINT ["java", "-jar", "app.jar"]
