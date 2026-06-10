@@ -7,10 +7,13 @@ spring:
       port: ${DEVTOOLS_LIVERELOAD_PORT:35247}
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    # 生产：SPRING_DATASOURCE_* 或 Railway MySQL 的 MYSQL* 变量
-    url: ${SPRING_DATASOURCE_URL:jdbc:mysql://${MYSQLHOST:localhost}:${MYSQLPORT:3306}/${MYSQLDATABASE:neusoftllm}?characterEncoding=utf-8&serverTimezone=Asia/Shanghai&createDatabaseIfNotExist=true}
-    username: ${SPRING_DATASOURCE_USERNAME:${MYSQLUSER:root}}
-    password: ${SPRING_DATASOURCE_PASSWORD:${MYSQLPASSWORD:123456}}
+    # Railway：在 Variables 里引用 MySQL 的 MYSQLHOST/MYSQLPORT/MYSQLUSER/MYSQLPASSWORD/MYSQLDATABASE
+    # 也可用 SPRING_DATASOURCE_URL 整串覆盖（优先级更高）
+    url: jdbc:mysql://${MYSQLHOST:localhost}:${MYSQLPORT:3306}/${MYSQLDATABASE:neusoftllm}?characterEncoding=utf-8&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true&useSSL=false&createDatabaseIfNotExist=true
+    username: ${MYSQLUSER:root}
+    password: ${MYSQLPASSWORD:123456}
+    hikari:
+      connection-timeout: 60000
   sql:
     init:
       mode: always
