@@ -5829,9 +5829,52 @@
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
   padding-right: 2px;
   margin-right: -2px;
+}
+
+.teacher-app .t-tasks-sidebar__pager {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  flex-shrink: 0;
+  padding: 6px 0 2px;
+}
+
+.teacher-app .t-tasks-sidebar__pager-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--t-line);
+  border-radius: 8px;
+  background: var(--t-card);
+  color: var(--t-muted);
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
+}
+
+.teacher-app .t-tasks-sidebar__pager-btn:hover:not(:disabled) {
+  border-color: rgba(99, 102, 241, 0.35);
+  color: var(--t-accent);
+  background: rgba(99, 102, 241, 0.06);
+}
+
+.teacher-app .t-tasks-sidebar__pager-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.teacher-app .t-tasks-sidebar__pager-info {
+  min-width: 52px;
+  text-align: center;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--t-muted);
+  font-variant-numeric: tabular-nums;
 }
 
 .teacher-app .t-tasks-sidebar__empty {
@@ -5903,7 +5946,7 @@
   align-items: flex-start;
   gap: 10px;
   width: 100%;
-  padding: 12px 12px 12px 14px;
+  padding: 13px 12px 13px 14px;
   border: 1px solid transparent;
   border-radius: 12px;
   background: var(--t-card);

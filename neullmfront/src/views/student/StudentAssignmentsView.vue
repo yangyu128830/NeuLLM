@@ -179,7 +179,7 @@ async function logout() {
   overflow-x: hidden;
   display: flex;
   flex-direction: column;
-  background: #f1f5f9;
+  background: var(--page-bg);
   color: var(--text);
   font-family: var(--font);
 }
@@ -567,6 +567,35 @@ h1 {
 .toast-fade-leave-to {
   opacity: 0;
   transform: translateY(8px);
+}
+
+@media (max-width: 767px) {
+  .sub-item {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 14px;
+    padding: 16px 14px;
+  }
+
+  .status-done {
+    max-width: 100%;
+    align-items: flex-start;
+    text-align: left;
+  }
+
+  .sub-comment {
+    text-align: left;
+  }
+
+  .upload-btn {
+    width: 100%;
+    justify-content: center;
+    min-height: 44px;
+  }
+
+  .task-card {
+    border-radius: 14px;
+  }
 }
 
 @media (max-width: 640px) {

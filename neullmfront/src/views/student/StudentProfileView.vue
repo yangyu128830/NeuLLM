@@ -341,15 +341,15 @@ onMounted(load);
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background: #f1f5f9;
+  background: var(--page-bg);
   color: var(--text);
   font-family: var(--font);
 }
 
 .content {
   flex: 1;
-  padding-top: 24px;
-  padding-bottom: 48px;
+  padding-top: 20px;
+  padding-bottom: 24px;
 }
 
 .state-box {
@@ -575,6 +575,32 @@ onMounted(load);
 .toast-fade-leave-to {
   opacity: 0;
   transform: translateX(-50%) translateY(8px);
+}
+
+@media (max-width: 767px) {
+  .profile-card-head {
+    padding: 16px;
+  }
+
+  .profile-head-actions {
+    width: 100%;
+    margin-left: 0;
+  }
+
+  .profile-head-actions .btn-primary,
+  .profile-head-actions .btn-ghost-card {
+    flex: 1;
+    justify-content: center;
+    min-height: 44px;
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .profile-form {
+    padding: 4px 16px 20px;
+  }
 }
 
 @media (max-width: 640px) {

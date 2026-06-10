@@ -427,12 +427,18 @@
       </div>
     </div>
   </div>
+  <StudentBottomNav
+    v-if="!teacherMode && !embedded"
+    active="chat"
+    :unread-count="studentUnread"
+  />
   </div>
 </template>
 
 <script setup>
 import { ref, computed, onMounted, nextTick } from 'vue';
 import { useRouter } from 'vue-router';
+import StudentBottomNav from '@/components/student/StudentBottomNav.vue';
 
 const props = defineProps({
   teacherMode: { type: Boolean, default: false },
@@ -2715,6 +2721,25 @@ html.chat-route .chat-page {
 @media (max-width: 768px) {
   html.chat-route .chat-page {
     padding: 10px;
+    padding-bottom: calc(10px + 64px + env(safe-area-inset-bottom, 0px));
+  }
+
+  html.chat-route .chat-page .user-nav {
+    display: none;
+  }
+
+  html.chat-route .chat-page > header .subtitle,
+  html.chat-route .chat-page > header .template-bar {
+    display: none;
+  }
+
+  html.chat-route .chat-page > header .header-row h1 {
+    font-size: 1.05rem;
+  }
+
+  html.chat-route .chat-page .nav-btn {
+    min-width: 44px;
+    min-height: 44px;
   }
 
   .app-content {

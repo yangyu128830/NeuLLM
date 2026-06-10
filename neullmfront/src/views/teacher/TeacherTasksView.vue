@@ -31,7 +31,7 @@
           </button>
 
           <button
-            v-for="t in filteredSidebarTasks"
+            v-for="t in paginatedSidebarTasks"
             :key="t.taskId"
             type="button"
             :class="['t-tasks-item', { 't-tasks-item--on': t.taskId === currentTaskId && !isNewTask }]"
@@ -67,6 +67,34 @@
             没有匹配的任务
           </div>
         </div>
+
+        <nav
+          v-if="sidebarTotalPages > 1"
+          class="t-tasks-sidebar__pager"
+          aria-label="任务列表分页"
+        >
+          <button
+            type="button"
+            class="t-tasks-sidebar__pager-btn"
+            :disabled="taskPage <= 1"
+            aria-label="上一页"
+            @click="taskPage -= 1"
+          >
+            <i class="fas fa-chevron-left"></i>
+          </button>
+          <span class="t-tasks-sidebar__pager-info">
+            {{ taskPage }} / {{ sidebarTotalPages }}
+          </span>
+          <button
+            type="button"
+            class="t-tasks-sidebar__pager-btn"
+            :disabled="taskPage >= sidebarTotalPages"
+            aria-label="下一页"
+            @click="taskPage += 1"
+          >
+            <i class="fas fa-chevron-right"></i>
+          </button>
+        </nav>
 
         <div class="t-tasks-sidebar__foot">
           <router-link to="/teacher/chat" class="t-tasks-agent-link">
@@ -469,6 +497,7 @@ const {
   formatTaskTarget,
   tasks,
   tasksBySubjectFilter,
+  subjectFilter,
   currentTaskId,
   isNewTask,
   isEditingTask,
@@ -500,7 +529,9 @@ const draftPromptChips = [
   '实验报告：实验记录 + 分析与结论',
 ];
 
+const TASKS_PAGE_SIZE = 5;
 const taskSearchQuery = ref('');
+const taskPage = ref(1);
 const descExpanded = ref(false);
 
 const descNeedsToggle = computed(() => {
@@ -535,12 +566,51 @@ const filteredSidebarTasks = computed(() => {
   );
 });
 
+const sidebarTotalPages = computed(() =>
+  Math.max(1, Math.ceil(filteredSidebarTasks.value.length / TASKS_PAGE_SIZE)),
+);
+
+const paginatedSidebarTasks = computed(() => {
+  const start = (taskPage.value - 1) * TASKS_PAGE_SIZE;
+  return filteredSidebarTasks.value.slice(start, start + TASKS_PAGE_SIZE);
+});
+
+function syncTaskPageToSelection() {
+  const id = currentTaskId.value;
+  if (!id || isNewTask.value) return;
+  const idx = filteredSidebarTasks.value.findIndex((t) => t.taskId === id);
+  if (idx >= 0) {
+    taskPage.value = Math.floor(idx / TASKS_PAGE_SIZE) + 1;
+  }
+}
+
+watch(taskSearchQuery, () => {
+  taskPage.value = 1;
+  syncTaskPageToSelection();
+});
+
+watch(subjectFilter, () => {
+  taskPage.value = 1;
+  syncTaskPageToSelection();
+});
+
+watch(filteredSidebarTasks, () => {
+  if (taskPage.value > sidebarTotalPages.value) {
+    taskPage.value = sidebarTotalPages.value;
+  }
+});
+
+watch(currentTaskId, () => {
+  syncTaskPageToSelection();
+});
+
 async function onGenerateDraft() {
   await fetchTaskDraftAssist();
 }
 
-onMounted(() => {
-  openTasksPage();
+onMounted(async () => {
+  await openTasksPage();
+  syncTaskPageToSelection();
 });
 
 const orderedSubTasks = ref([]);

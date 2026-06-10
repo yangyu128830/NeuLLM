@@ -26,7 +26,6 @@
     </StudentPageHeader>
 
     <main class="content page-inner">
-      <!-- 工具栏：顶部「N 条未读」胶囊，数据来自 notificationsApi.unreadCount() -->
       <div v-if="!loading && !loadError" class="toolbar">
         <div class="toolbar__left">
           <span v-if="unread > 0" class="unread-pill">
@@ -35,6 +34,27 @@
           <span v-else class="toolbar-muted">全部已读</span>
         </div>
         <span v-if="accountLabel" class="toolbar-account">{{ accountLabel }}</span>
+      </div>
+
+      <div
+        v-if="!loading && !loadError && items.length"
+        class="type-filter"
+        role="tablist"
+        aria-label="消息分类筛选"
+      >
+        <button
+          v-for="opt in typeFilterOptions"
+          :key="opt.value"
+          type="button"
+          role="tab"
+          class="type-filter__btn"
+          :class="{ 'type-filter__btn--active': typeFilter === opt.value }"
+          :aria-selected="typeFilter === opt.value"
+          @click="typeFilter = opt.value"
+        >
+          {{ opt.label }}
+          <em v-if="opt.count > 0">{{ opt.count }}</em>
+        </button>
       </div>
 
       <div v-if="loading" class="state-box">
@@ -75,10 +95,21 @@
         </div>
       </div>
 
+      <div v-else-if="!filteredItems.length" class="state-box state-box--empty">
+        <div class="state-icon-wrap state-icon-wrap--empty">
+          <i class="fas fa-filter"></i>
+        </div>
+        <p>该分类暂无消息</p>
+        <span class="state-hint">切换其他分类或等待新通知</span>
+        <button type="button" class="btn-retry btn-retry--ghost" @click="typeFilter = 'all'">
+          查看全部消息
+        </button>
+      </div>
+
       <!-- 消息列表：item.read 为 false 时加 msg-card--unread（左侧绿边 + 浅绿背景） -->
       <ul v-else class="msg-list">
         <li
-          v-for="item in items"
+          v-for="item in filteredItems"
           :key="item.id"
           :class="['msg-card', { 'msg-card--unread': !item.read }]"
           @click="openItem(item)"
@@ -99,7 +130,7 @@
               查看详情 <i class="fas fa-arrow-right"></i>
             </span>
           </div>
-          <!-- 未读红点：仅 item.read === false 时显示，样式见 .msg-dot -->
+          <!-- 未读红点：仅 item.read === false 时显示 -->
           <span v-if="!item.read" class="msg-dot" aria-label="未读"></span>
         </li>
       </ul>
@@ -131,6 +162,30 @@ const markingAll = ref(false);
 const loadError = ref('');
 const items = ref([]); // 消息列表，每条含 id / type / typeLabel / read / title / content / linkPath
 const unread = ref(0); // 未读总数，驱动顶部「N 条未读」和 msg-card--unread 以外的全局 UI
+const typeFilter = ref('all');
+
+const TYPE_FILTER_OPTIONS = [
+  { value: 'all', label: '全部', types: null },
+  { value: 'TASK_REMIND', label: '作业催交', types: ['TASK_REMIND'] },
+  { value: 'TASK_PUBLISHED', label: '新作业', types: ['TASK_PUBLISHED'] },
+  { value: 'GRADE_RESULT', label: '批改结果', types: ['GRADE_RESULT'] },
+  { value: 'ACTIVITY', label: '活动', types: ['ACTIVITY'] },
+];
+
+const typeFilterOptions = computed(() =>
+  TYPE_FILTER_OPTIONS.map((opt) => ({
+    ...opt,
+    count: opt.types
+      ? items.value.filter((it) => opt.types.includes(it.type)).length
+      : items.value.length,
+  })),
+);
+
+const filteredItems = computed(() => {
+  const opt = TYPE_FILTER_OPTIONS.find((o) => o.value === typeFilter.value);
+  if (!opt?.types) return items.value;
+  return items.value.filter((it) => opt.types.includes(it.type));
+});
 
 const accountLabel = computed(() => {
   const u = getUser();
@@ -237,7 +292,7 @@ onMounted(load); // 路由进入 /messages 时自动加载
   overflow-x: hidden;
   display: flex;
   flex-direction: column;
-  background: #f1f5f9;
+  background: var(--page-bg);
   color: var(--text);
   font-family: var(--font);
 }
@@ -350,8 +405,8 @@ h1 {
 
 .content {
   flex: 1;
-  padding-top: 16px;
-  padding-bottom: 24px;
+  padding-top: 20px;
+  padding-bottom: 32px;
 }
 
 .toolbar {
@@ -360,10 +415,14 @@ h1 {
   justify-content: space-between;
   gap: 12px;
   margin-bottom: 12px;
-  padding: 10px 14px;
-  background: #fff;
-  border: 1px solid var(--border);
-  border-radius: 8px;
+  flex-wrap: wrap;
+}
+
+.toolbar__left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
 }
 
 .toolbar-muted {
@@ -377,7 +436,6 @@ h1 {
   font-weight: 600;
 }
 
-/* 顶部「N 条未读」橙色胶囊，绑定 unread 变量 */
 .unread-pill {
   display: inline-flex;
   align-items: center;
@@ -393,6 +451,64 @@ h1 {
 
 .unread-pill i {
   font-size: 0.45rem;
+}
+
+.type-filter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 14px;
+  padding: 10px 12px;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.type-filter__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: #f8fafc;
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+
+.type-filter__btn:hover:not(.type-filter__btn--active) {
+  background: #f1f5f9;
+  border-color: rgba(15, 23, 42, 0.12);
+  color: var(--text);
+}
+
+.type-filter__btn--active {
+  background: var(--hint-bg);
+  border-color: rgba(20, 184, 166, 0.35);
+  color: var(--accent-dark);
+}
+
+.type-filter__btn em {
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.08);
+  color: var(--muted);
+  font-size: 0.68rem;
+  font-weight: 700;
+  font-style: normal;
+  line-height: 18px;
+  text-align: center;
+}
+
+.type-filter__btn--active em {
+  background: rgba(20, 184, 166, 0.18);
+  color: var(--accent-dark);
 }
 
 .state-box {
@@ -467,6 +583,16 @@ h1 {
   font-family: inherit;
 }
 
+.btn-retry--ghost {
+  background: #fff;
+  border: 1px solid var(--border);
+  color: var(--text);
+}
+
+.btn-retry--ghost:hover {
+  background: #f8fafc;
+}
+
 .empty-tips {
   display: flex;
   gap: 12px;
@@ -523,7 +649,6 @@ h1 {
   transform: translateY(-1px);
 }
 
-/* 未读卡片样式：模板里 !item.read 时动态加上 msg-card--unread */
 .msg-card--unread {
   border-left: 3px solid var(--accent-dark);
   background: linear-gradient(90deg, rgba(20, 184, 166, 0.05) 0%, #fff 120px);
@@ -632,7 +757,6 @@ h1 {
   opacity: 1;
 }
 
-/* 未读红点：v-if="!item.read" 时显示在卡片右上角 */
 .msg-dot {
   position: absolute;
   top: 16px;
@@ -650,20 +774,29 @@ h1 {
     align-items: flex-start;
   }
 
-  .header-actions {
-    width: 100%;
+  .type-filter {
+    gap: 6px;
+    padding: 8px 10px;
   }
 
-  .btn-ghost,
-  .btn-outline {
-    flex: 1;
-    justify-content: center;
-    min-width: calc(50% - 5px);
+  .type-filter__btn {
+    padding: 7px 10px;
+    font-size: 0.76rem;
   }
 
   .msg-card {
     padding: 14px;
     gap: 12px;
+  }
+
+  .msg-card__head {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+
+  .msg-time {
+    align-self: flex-start;
   }
 
   .msg-action {

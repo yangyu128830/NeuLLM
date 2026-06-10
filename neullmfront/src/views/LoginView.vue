@@ -84,13 +84,26 @@
               <input
                 id="password"
                 v-model="form.password"
-                type="password"
+                :type="showPassword ? 'text' : 'password'"
                 autocomplete="current-password"
                 placeholder="请输入密码"
                 required
               />
+              <button
+                type="button"
+                class="auth-pwd-toggle"
+                :aria-label="showPassword ? '隐藏密码' : '显示密码'"
+                @click="showPassword = !showPassword"
+              >
+                <i class="fas" :class="showPassword ? 'fa-eye-slash' : 'fa-eye'"></i>
+              </button>
             </div>
           </div>
+
+          <label class="auth-remember">
+            <input v-model="rememberMe" type="checkbox" />
+            <span>记住账号和密码</span>
+          </label>
 
           <p v-if="error" class="auth-error" role="alert">
             <i class="fas fa-exclamation-circle"></i>
@@ -133,10 +146,10 @@
 </template>
 
 <script setup>
-import { reactive, ref } from 'vue';
+import { reactive, ref, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import authApi from '../services/authApi';
-import { setAuth } from '../stores/auth';
+import { setAuth, getRememberedLogin, saveRememberedLogin } from '../stores/auth';
 import '../assets/auth-shell.css';
 
 const route = useRoute();
@@ -151,11 +164,23 @@ function initialRole() {
 
 const loginRole = ref(initialRole());
 const form = reactive({ username: '', password: '' });
+const rememberMe = ref(false);
+const showPassword = ref(false);
+
+function applyRemembered(role) {
+  const saved = getRememberedLogin(role);
+  rememberMe.value = saved.remember;
+  form.username = saved.username;
+  form.password = saved.password;
+}
 
 function setLoginRole(role) {
   loginRole.value = role;
   error.value = '';
+  applyRemembered(role);
 }
+
+onMounted(() => applyRemembered(loginRole.value));
 
 async function onSubmit() {
   loading.value = true;
@@ -175,6 +200,12 @@ async function onSubmit() {
       return;
     }
     setAuth(user.token, user);
+    saveRememberedLogin(
+      loginRole.value,
+      rememberMe.value,
+      form.username.trim(),
+      form.password
+    );
     await router.replace(user.role === 'TEACHER' ? '/teacher/chat' : '/chat');
   } catch (e) {
     error.value = e.response?.data?.message || e.message || '登录失败';
@@ -192,5 +223,44 @@ async function onSubmit() {
 .auth-error i {
   margin-top: 2px;
   flex-shrink: 0;
+}
+
+.auth-remember {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 2px 0 18px;
+  font-size: 0.88rem;
+  color: rgba(15, 23, 42, 0.72);
+  cursor: pointer;
+  user-select: none;
+}
+
+.auth-remember input[type='checkbox'] {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--auth-accent, #0d9488);
+  cursor: pointer;
+}
+
+.auth-pwd-toggle {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  border: none;
+  background: transparent;
+  color: rgba(15, 23, 42, 0.45);
+  cursor: pointer;
+  padding: 4px;
+  line-height: 1;
+}
+
+.auth-pwd-toggle:hover {
+  color: rgba(15, 23, 42, 0.75);
+}
+
+.auth-input-wrap:has(.auth-pwd-toggle) input {
+  padding-right: 42px;
 }
 </style>
