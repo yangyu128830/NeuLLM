@@ -1,0 +1,121 @@
+spring:
+  application:
+    name: NeuLLMDev
+  # LiveReload 默认 35729，多实例/多项目时易冲突；换端口或设 DEVTOOLS_LIVERELOAD_PORT
+  devtools:
+    livereload:
+      port: ${DEVTOOLS_LIVERELOAD_PORT:35247}
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    # createDatabaseIfNotExist：库不存在时自动建库；表仍由 classpath:schema.sql 初始化
+    url: jdbc:mysql://localhost:3306/neusoftllm?characterEncoding=utf-8&serverTimezone=Asia/Shanghai&createDatabaseIfNotExist=true
+    username: root
+    password: 123456
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:schema.sql,classpath:schema-migrate.sql
+
+  # QQ 邮箱：须使用「SMTP 授权码」，不是 QQ 登录密码；须在网页邮箱设置里开启 SMTP。
+  # 推荐 465 + SSL（与 587+STARTTLS 二选一，避免混用导致 535）。
+  # 敏感信息用环境变量：QQ_SMTP_USERNAME、QQ_SMTP_PASSWORD（授权码）
+  mail:
+    host: smtp.qq.com
+    port: 465
+    username: ${QQ_SMTP_USERNAME:ysy13044878810@qq.com}
+    password: ${QQ_SMTP_PASSWORD:dfnauvvbktqubhfj}
+    protocol: smtp
+    default-encoding: UTF-8
+    properties:
+      mail:
+        smtp:
+          auth: true
+          # QQ 对 HELO/EHLO 主机名较严：默认会用本机名，含中文或异常格式易报 502 Invalid input
+          localhost: ${MAIL_SMTP_EHLO_HOST:smtp.qq.com}
+          ssl:
+            enable: true
+            trust: smtp.qq.com
+            protocols: TLSv1.2
+          starttls:
+            enable: false
+          connectiontimeout: 15000
+          timeout: 15000
+          writetimeout: 15000
+  servlet:
+    multipart:
+      max-file-size: ${CLASSROOM_MAX_FILE_SIZE:20MB}
+      max-request-size: ${CLASSROOM_MAX_REQUEST_SIZE:25MB}
+
+server:
+  # 与 neullmfront（api.js / ChatView）中的 localhost:8082 一致；可用 SERVER_PORT 覆盖
+  port: ${SERVER_PORT:8082}
+  tomcat:
+    # 默认仅 1MB，作业 docx/pdf 上传需放宽（与 spring.servlet.multipart 保持一致）
+    max-http-form-post-size: 25MB
+    max-swallow-size: 25MB
+
+logging:
+  level:
+    root: INFO
+    org.springframework: INFO
+    org.springframework.web: INFO
+
+mybatis:
+  configuration:
+    map-underscore-to-camel-case: true
+  type-aliases-package: com.neusoft.edu.neullmdev.entity.reminder,com.neusoft.edu.neullmdev.entity.hotel,com.neusoft.edu.neullmdev.entity.travel,com.neusoft.edu.neullmdev.entity.profile,com.neusoft.edu.neullmdev.entity.communication
+
+# 高德开放平台 Key（用于天气/地理编码）
+amap:
+  api-key: "0ab38e4aeeda6f0050321c3b74bccea0"
+
+# 腾讯位置服务（美食 / 餐厅 POI 地点搜索）。Key 与 SK 用环境变量：TENCENT_MAP_KEY、TENCENT_MAP_SK
+tencent:
+  map:
+    key: ${TENCENT_MAP_KEY:}
+    secret: ${TENCENT_MAP_SK:}
+
+sms:
+  api-url: "https://api.neekoft.com/sms/send"
+  api-key: "neullm-sms-key-2024"
+
+# 大模型：Kimi（Moonshot https://api.moonshot.cn/v1/chat/completions）
+# 生产环境建议 api-key 使用环境变量，例如 api-key: ${MOONSHOT_API_KEY:}
+app:
+  storage:
+    artifact-dir: ${ARTIFACT_DIR:data/artifacts}
+  auth:
+    session-hours: 72
+  llm:
+    api-key: sk-4xTzitt2R2BLmmcs2xPOZr5LzDOpaxak8VQaHg7t8typIgw4
+    base-url: https://api.moonshot.cn/v1/chat/completions
+    model: moonshot-v1-32k
+    # 普通重试：主要覆盖 5xx / 网络抖动（4xx 里除 429 外不重试）。
+    max-retries: 1
+    retry-backoff-ms: 1200
+    # 429 限流：Moonshot 按 RPM/TPM/并发等维度限流，短时突发可自动退避重试几次；仍失败则需降频或控制台升级额度。
+    retry-429-max-attempts: 2
+    retry-429-initial-delay-ms: 4000
+
+  weather:
+    enable: false
+    key: 124e7e84e5fc7c3538a473c245198147
+    url: https://restapi.amap.com/v3/weather/weatherInfo
+
+# ============================================================
+# 酒店推荐：高德开放平台 POI 搜索 API
+# 官网：https://lbs.amap.com/
+# 功能：按城市 + 关键词搜索酒店（返回名称、地址、经纬度、电话）
+# 费用：个人开发者免费，每日 10 万次额度
+# ============================================================
+
+#llm:
+#  tools-config:
+#    你支持以下函数调用，请按指定格式响应：
+#    1. get_current_weather(location, adcode) - 获取天气
+#    2. send_email(recipient, subject, content) - 发送邮件,recipient是人名
+#    3. wordWrite(title, content) - 撰写docx文档
+#    4. getLocationInfo(origin, destination) - 获取位置路线
+#    响应规则：
+#    - 需要调用函数时返回JSON: {"function":"函数名", "params":{参数键值对}}
+#    - 直接回答时返回普通文本

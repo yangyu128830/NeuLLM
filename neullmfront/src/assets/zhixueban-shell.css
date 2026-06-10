@@ -1,0 +1,31 @@
+/* 智学伴 · 学生端 / 教师端 / Agent 对话 共用视觉令牌 */
+:root {
+  --zx-shell-gradient: linear-gradient(145deg, #022c22 0%, #064e3b 28%, #0f172a 62%, #0c4a6e 100%);
+  --zx-shell-base: #042f2e;
+  --zx-glass: rgba(255, 255, 255, 0.11);
+  --zx-glass-strong: rgba(255, 255, 255, 0.16);
+  --zx-glass-border: rgba(255, 255, 255, 0.22);
+  --zx-glass-blur: blur(14px);
+  --zx-surface: rgba(255, 255, 255, 0.98);
+  --zx-surface-muted: linear-gradient(180deg, #f8fafc 0%, #f0fdfa 100%);
+  --zx-teal: #0d9488;
+  --zx-teal-dark: #0f766e;
+  --zx-teal-light: #14b8a6;
+  --zx-teal-soft: #ccfbf1;
+  --zx-text: #0f172a;
+  --zx-muted: #64748b;
+  --zx-border: rgba(15, 23, 42, 0.08);
+  --zx-shadow-card: 0 12px 40px rgba(15, 23, 42, 0.14);
+  --zx-shadow-soft: 0 2px 12px rgba(15, 23, 42, 0.06);
+  --zx-radius-lg: 16px;
+  --zx-radius-md: 12px;
+  --zx-font: var(--font-sans);
+}
+
+html.teacher-route body {
+  background: #eef2f6;
+}
+
+html.chat-route body {
+  background: var(--zx-shell-base);
+}

@@ -1,0 +1,41 @@
+/* 智学伴 · 全局设计令牌 */
+:root {
+  --font-sans: "Plus Jakarta Sans", "Noto Sans SC", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-display: "Plus Jakarta Sans", "Noto Sans SC", sans-serif;
+
+  --zx-ink: #d8dee4;
+  --zx-ink-soft: #ecf1f6;
+  --zx-slate: #64748b;
+  --zx-slate-light: #94a3b8;
+
+  --zx-emerald: #10b981;
+  --zx-emerald-dark: #059669;
+  --zx-emerald-light: #34d399;
+  --zx-emerald-glow: rgba(16, 185, 129, 0.35);
+  --zx-cyan: #22d3ee;
+  --zx-violet: #8b5cf6;
+
+  --zx-gradient-brand: linear-gradient(135deg, #059669 0%, #10b981 42%, #22d3ee 100%);
+  --zx-gradient-hero: linear-gradient(148deg, #dce8e4 0%, #d8e8ef 28%, #cfdde8 58%, #c8d8e4 82%, #d4dde6 100%);
+  --zx-gradient-mesh:
+    radial-gradient(ellipse 80% 60% at 12% 20%, rgba(16, 185, 129, 0.1) 0%, transparent 55%),
+    radial-gradient(ellipse 70% 50% at 88% 12%, rgba(34, 211, 238, 0.08) 0%, transparent 50%),
+    radial-gradient(ellipse 60% 45% at 72% 78%, rgba(100, 116, 139, 0.06) 0%, transparent 48%),
+    radial-gradient(ellipse 50% 40% at 8% 85%, rgba(5, 150, 105, 0.08) 0%, transparent 45%);
+
+  --zx-glass: rgba(255, 255, 255, 0.06);
+  --zx-glass-border: rgba(255, 255, 255, 0.12);
+  --zx-glass-hover: rgba(255, 255, 255, 0.1);
+
+  --zx-shadow-glow: 0 0 60px rgba(16, 185, 129, 0.15);
+  --zx-shadow-card: 0 4px 6px rgba(0, 0, 0, 0.04), 0 20px 50px rgba(0, 0, 0, 0.22);
+  --zx-shadow-cta: 0 8px 32px var(--zx-emerald-glow), 0 2px 8px rgba(0, 0, 0, 0.12);
+
+  --zx-radius-sm: 10px;
+  --zx-radius-md: 14px;
+  --zx-radius-lg: 20px;
+  --zx-radius-xl: 28px;
+
+  --zx-ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --zx-duration: 0.35s;
+}

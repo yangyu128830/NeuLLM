@@ -1,0 +1,32 @@
+package com.neusoft.edu.neullmdev.config.llm;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+public final class LlmResponseParser {
+
+    private LlmResponseParser() {}
+
+    /**
+     * 解析 Moonshot（Kimi）Chat Completions 响应中的助手正文：{@code choices[0].message.content}。
+     */
+    public static String assistantContent(String raw) {
+        try {
+            JSONObject jsonResp = new JSONObject(raw);
+            if (jsonResp.has("choices")) {
+                JSONArray choices = jsonResp.optJSONArray("choices");
+                if (choices != null && choices.length() > 0) {
+                    JSONObject first = choices.optJSONObject(0);
+                    if (first != null) {
+                        JSONObject message = first.optJSONObject("message");
+                        if (message != null) {
+                            return message.optString("content", "");
+                        }
+                    }
+                }
+            }
+        } catch (Exception ignored) {
+        }
+        return "";
+    }
+}
