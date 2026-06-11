@@ -269,6 +269,37 @@ html.public-route #app {
   }
 }
 
+@media (max-width: 767px) {
+  .public-bg {
+    background-position: center 15%;
+  }
+
+  .public-bg::before {
+    background: linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.94) 0%,
+      rgba(255, 255, 255, 0.9) 38%,
+      rgba(255, 255, 255, 0.72) 62%,
+      rgba(248, 250, 252, 0.55) 100%
+    );
+  }
+
+  .public-nav {
+    padding: 12px 16px;
+    padding-top: calc(12px + env(safe-area-inset-top, 0px));
+  }
+
+  .public-nav-name {
+    font-size: 1.1rem;
+  }
+
+  .public-nav-icon {
+    width: 36px;
+    height: 36px;
+    font-size: 0.9rem;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .public-page-enter-active,
   .public-page-leave-active {

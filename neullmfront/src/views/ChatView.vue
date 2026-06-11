@@ -44,31 +44,76 @@
       </div>
     </header>
 
-    <!-- 页面头部 -->
-    <header v-else>
-      <div class="header-row">
-        <h1><i class="fas fa-graduation-cap"></i> 智学伴</h1>
-        <nav v-if="!embedded" class="user-nav">
-          <router-link v-if="teacherMode" to="/teacher/progress" class="nav-link-dash">
-            <i class="fas fa-arrow-left"></i> 管理后台
-          </router-link>
-          <template v-else>
-            <router-link to="/messages" class="nav-link-msg">
-              <i class="fas fa-bell"></i> 消息
+    <!-- 学生端页头 -->
+    <header v-else-if="!teacherMode" class="s-agent-hero">
+      <div class="s-agent-hero__glow" aria-hidden="true"></div>
+      <div class="s-agent-hero__top">
+        <div class="s-agent-hero__brand">
+          <span class="s-agent-hero__icon"><i class="fas fa-graduation-cap"></i></span>
+          <div class="s-agent-hero__copy">
+            <span class="s-agent-hero__eyebrow">AI 学习助手</span>
+            <h1>智学伴</h1>
+            <p>多智能体协作 · 个性化辅导 · 作业提醒与学情洞察</p>
+          </div>
+        </div>
+        <div v-if="!embedded" class="s-agent-hero__meta">
+          <span class="s-agent-hero__live">
+            <span class="s-agent-hero__live-dot" aria-hidden="true"></span>
+            在线
+          </span>
+          <nav class="s-agent-hero__nav" aria-label="主导航">
+            <router-link to="/messages" class="s-nav-pill s-nav-pill--msg">
+              <i class="fas fa-bell"></i>
+              <span>消息</span>
               <span v-if="studentUnread > 0" class="chat-nav-badge">{{
                 studentUnread > 99 ? '99+' : studentUnread
               }}</span>
             </router-link>
-            <router-link to="/assignments">我的作业</router-link>
-            <router-link to="/profile">个人中心</router-link>
-          </template>
+            <router-link to="/assignments" class="s-nav-pill">
+              <i class="fas fa-book"></i>
+              <span>我的作业</span>
+            </router-link>
+            <router-link to="/profile" class="s-nav-pill">
+              <i class="fas fa-user"></i>
+              <span>个人中心</span>
+            </router-link>
+            <button type="button" class="s-nav-pill s-nav-pill--logout" @click="handleLogout">
+              <i class="fas fa-sign-out-alt"></i>
+              <span>退出</span>
+            </button>
+          </nav>
+        </div>
+      </div>
+      <div class="s-agent-hero__chips" aria-label="快捷指令">
+        <span class="s-agent-hero__chips-label">试试</span>
+        <div class="s-agent-hero__chips-row">
+          <button
+            v-for="(tpl, i) in promptTemplates"
+            :key="i"
+            type="button"
+            class="s-agent-chip"
+            @click="applyTemplate(tpl)"
+          >
+            <span class="s-agent-chip__icon"><i :class="templateIcon(tpl)"></i></span>
+            <span class="s-agent-chip__text">{{ tpl.label }}</span>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- 教师端独立页头 -->
+    <header v-else>
+      <div class="header-row">
+        <h1><i class="fas fa-robot"></i> 教学 Agent</h1>
+        <nav v-if="!embedded" class="user-nav">
+          <router-link to="/teacher/progress" class="nav-link-dash">
+            <i class="fas fa-arrow-left"></i> 管理后台
+          </router-link>
           <button type="button" class="nav-btn" @click="handleLogout">退出</button>
         </nav>
       </div>
-      <p v-if="teacherMode" class="role-badge">{{ embedded ? '教学 Agent · 主工作台' : '教师端 · 教学 Agent' }}</p>
-      <p class="subtitle">
-        多智能体协作 · 个性化辅导 · 作业提醒与学情洞察
-      </p>
+      <p class="role-badge">教师端 · 教学 Agent</p>
+      <p class="subtitle">布置作业、批改建议、学情分析、催交提醒 — 一句话完成</p>
       <div class="template-bar" aria-label="提示词模板">
         <span class="template-bar-label">试试：</span>
         <button
@@ -85,22 +130,120 @@
 
     <div class="app-content">
       <!-- 聊天容器 -->
-      <div class="chat-container">
-        <div v-if="!isTeacherShell" class="chat-header">
-          <i class="fas fa-comments"></i>
-          <span>{{ chatHeaderTitle }}</span>
+      <div class="chat-container" :class="{ 'chat-container--student': !isTeacherShell && !teacherMode }">
+        <div v-if="!isTeacherShell && !teacherMode" class="s-chat-mobile-bar">
+          <div class="s-chat-mobile-bar__brand">
+            <span class="s-chat-mobile-bar__icon"><i class="fas fa-graduation-cap"></i></span>
+            <span class="s-chat-mobile-bar__title">智学伴</span>
+          </div>
+          <span class="s-chat-mobile-bar__live">
+            <span class="s-chat-mobile-bar__dot" aria-hidden="true"></span>
+            在线
+          </span>
         </div>
-        <div v-else class="t-agent-panel-head">
+
+        <div v-if="isTeacherShell" class="t-chat-mobile-bar">
+          <div class="t-chat-mobile-bar__brand">
+            <span class="t-chat-mobile-bar__icon"><i class="fas fa-robot"></i></span>
+            <div class="t-chat-mobile-bar__copy">
+              <span class="t-chat-mobile-bar__title">教学 Agent</span>
+              <span class="t-chat-mobile-bar__sub">布置 · 批改 · 学情</span>
+            </div>
+          </div>
+          <span class="t-chat-mobile-bar__live">
+            <span class="t-chat-mobile-bar__dot" aria-hidden="true"></span>
+            在线
+          </span>
+        </div>
+
+        <div v-if="isTeacherShell" class="t-agent-panel-head">
           <span class="t-agent-panel-head__title">
             <i class="fas fa-comments"></i>
             {{ chatHeaderTitle }}
           </span>
           <span class="t-agent-panel-head__hint">Enter 发送</span>
         </div>
+        <div v-else-if="teacherMode" class="chat-header">
+          <i class="fas fa-comments"></i>
+          <span>{{ chatHeaderTitle }}</span>
+        </div>
 
         <!-- 聊天消息区域 -->
         <div class="chat-messages" ref="messagesContainer">
+          <div v-if="showTeacherWelcome" class="t-welcome-panel">
+            <div class="t-welcome-panel__hero" aria-hidden="true">
+              <div class="t-welcome-panel__hero-glow"></div>
+            </div>
+            <div class="t-welcome-panel__body">
+              <span class="t-welcome-panel__icon"><i class="fas fa-robot"></i></span>
+              <p class="t-welcome-panel__eyebrow">教学 Agent · 在线</p>
+              <h2 class="t-welcome-panel__title">您好，我是教学助手</h2>
+              <p class="t-welcome-panel__desc">{{ teacherWelcomeIntro }}</p>
+              <div class="t-welcome-panel__grid" aria-label="快捷能力">
+                <button
+                  v-for="(cap, i) in teacherWelcomeCapabilities"
+                  :key="'tcap-' + i"
+                  type="button"
+                  class="t-welcome-cap"
+                  @click="applyTemplate(cap.tpl)"
+                >
+                  <span class="t-welcome-cap__icon"><i :class="cap.icon"></i></span>
+                  <span class="t-welcome-cap__label">{{ cap.label }}</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div v-if="showStudentWelcome" class="s-welcome-panel">
+            <div class="s-welcome-panel__glow" aria-hidden="true"></div>
+            <div class="s-welcome-panel__shine" aria-hidden="true"></div>
+
+            <div class="s-welcome-panel__head">
+              <div class="s-welcome-panel__brand">
+                <span class="s-welcome-panel__icon">
+                  <i class="fas fa-robot"></i>
+                  <span class="s-welcome-panel__icon-ring" aria-hidden="true"></span>
+                </span>
+                <div class="s-welcome-panel__copy">
+                  <span class="s-welcome-panel__eyebrow">AI 学习助手</span>
+                  <h2 class="s-welcome-panel__title">你好，我是智学伴</h2>
+                  <p class="s-welcome-panel__desc">{{ welcomeShortText }}</p>
+                </div>
+              </div>
+              <span class="s-welcome-panel__badge">
+                <span class="s-welcome-panel__badge-dot" aria-hidden="true"></span>
+                随时在线
+              </span>
+            </div>
+
+            <p class="s-welcome-panel__intro">{{ welcomeIntroText }}</p>
+
+            <div class="s-welcome-panel__grid" aria-label="快捷能力">
+              <button
+                v-for="(cap, i) in welcomeCapabilities"
+                :key="'cap-' + i"
+                type="button"
+                class="s-welcome-cap"
+                @click="applyTemplate(cap.tpl)"
+              >
+                <span class="s-welcome-cap__icon"><i :class="cap.icon"></i></span>
+                <span class="s-welcome-cap__body">
+                  <strong>{{ cap.label }}</strong>
+                  <small>{{ cap.hint }}</small>
+                </span>
+                <i class="fas fa-chevron-right s-welcome-cap__arrow" aria-hidden="true"></i>
+              </button>
+            </div>
+
+            <div class="s-welcome-panel__footer">
+              <span><i class="fas fa-shield-alt"></i> 隐私保护</span>
+              <span><i class="fas fa-bolt"></i> 秒级响应</span>
+              <span><i class="fas fa-layer-group"></i> 多 Agent 协作</span>
+            </div>
+          </div>
+
           <div v-for="(message, index) in messages" :key="index"
+               v-show="!((showStudentWelcome || showTeacherWelcome) && index === 0)"
                :class="['message',
                         message.role === 'user' ? 'user-message' :
                         message.role === 'assistant' ? 'ai-message' :
@@ -400,29 +543,133 @@
         </div>
 
         <!-- 输入区域 -->
-        <div class="chat-input">
-          <textarea
-              v-model="userInput"
-              :placeholder="inputPlaceholder"
-              @keyup.enter.exact="sendMessage"
-              :disabled="isLoading"
-          ></textarea>
-          <button
-              v-if="isLoading"
+        <div v-if="!isTeacherShell && !teacherMode" class="s-chat-compose">
+          <div
+            v-if="showStudentWelcome"
+            class="s-mobile-chips"
+            aria-label="快捷指令"
+          >
+            <button
+              v-for="(tpl, i) in promptTemplates"
+              :key="'m-' + i"
               type="button"
-              class="stop-button"
-              @click="stopGeneration"
+              class="s-mobile-chip"
+              @click="applyTemplate(tpl)"
+            >
+              <i :class="templateIcon(tpl)"></i>
+              <span>{{ tpl.label }}</span>
+            </button>
+          </div>
+
+          <div class="chat-input chat-input--floating">
+            <div class="chat-input-bar">
+              <textarea
+                  v-model="userInput"
+                  :placeholder="studentInputPlaceholder"
+                  @keyup.enter.exact="sendMessage"
+                  :disabled="isLoading"
+                  rows="1"
+              ></textarea>
+              <button
+                  v-if="isLoading"
+                  type="button"
+                  class="stop-button"
+                  @click="stopGeneration"
+                  aria-label="停止"
+              >
+                <i class="fas fa-stop"></i>
+                <span class="send-btn-label">停止</span>
+              </button>
+              <button
+                  v-else
+                  class="send-button"
+                  @click="sendMessage"
+                  :disabled="userInput.trim() === ''"
+                  aria-label="发送"
+              >
+                <i class="fas fa-paper-plane"></i>
+                <span class="send-btn-label">发送</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <template v-else-if="isTeacherShell">
+          <div
+            v-if="!showTeacherWelcome"
+            class="s-mobile-chips s-mobile-chips--teacher"
+            aria-label="快捷指令"
           >
-            <i class="fas fa-stop"></i> 停止
-          </button>
-          <button
-              v-else
-              class="send-button"
-              @click="sendMessage"
-              :disabled="userInput.trim() === ''"
-          >
-            <i class="fas fa-paper-plane"></i> 发送
-          </button>
+            <button
+              v-for="(tpl, i) in promptTemplates"
+              :key="'tm-' + i"
+              type="button"
+              class="s-mobile-chip"
+              @click="applyTemplate(tpl)"
+            >
+              <i :class="templateIcon(tpl)"></i>
+              <span>{{ tpl.label }}</span>
+            </button>
+          </div>
+          <div class="chat-input">
+            <div class="chat-input-bar">
+              <textarea
+                  v-model="userInput"
+                  :placeholder="inputPlaceholder"
+                  @keyup.enter.exact="sendMessage"
+                  :disabled="isLoading"
+              ></textarea>
+              <button
+                  v-if="isLoading"
+                  type="button"
+                  class="stop-button"
+                  @click="stopGeneration"
+              >
+                <i class="fas fa-stop"></i>
+                <span class="send-btn-label">停止</span>
+              </button>
+              <button
+                  v-else
+                  class="send-button"
+                  @click="sendMessage"
+                  :disabled="userInput.trim() === ''"
+                  aria-label="发送"
+              >
+                <i class="fas fa-paper-plane"></i>
+                <span class="send-btn-label">发送</span>
+              </button>
+            </div>
+          </div>
+        </template>
+
+        <div v-else-if="teacherMode" class="chat-input">
+          <div class="chat-input-bar">
+            <textarea
+                v-model="userInput"
+                :placeholder="inputPlaceholder"
+                @keyup.enter.exact="sendMessage"
+                :disabled="isLoading"
+            ></textarea>
+            <button
+                v-if="isLoading"
+                type="button"
+                class="stop-button"
+                @click="stopGeneration"
+            >
+              <i class="fas fa-stop"></i>
+              <span class="send-btn-label">停止</span>
+            </button>
+            <button
+                v-else
+                class="send-button"
+                @click="sendMessage"
+                :disabled="userInput.trim() === ''"
+                aria-label="发送"
+            >
+              <i class="fas fa-paper-plane"></i>
+              <span class="send-btn-label">发送</span>
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -436,7 +683,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, nextTick } from 'vue';
+import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue';
 import { useRouter } from 'vue-router';
 import StudentBottomNav from '@/components/student/StudentBottomNav.vue';
 
@@ -526,6 +773,70 @@ const inputPlaceholder = computed(() =>
     : '用一句话描述你的学习需求，例如：整理 JavaSE 知识点、定时提醒、答疑或复习计划…',
 );
 
+const studentInputPlaceholder = '说说你的学习需求…';
+
+const welcomeShortText = '整理笔记、智能答疑、复习计划 — 点下方快捷词或直接输入';
+
+const welcomeIntroText =
+  '就像坐在你旁边一起自习的老朋友——整理笔记、讲难题、排复习节奏，随口说一句就行。';
+
+const welcomeCapabilities = [
+  {
+    label: '整理知识点',
+    hint: '笔记结构化 · 期末冲刺',
+    icon: 'fas fa-book-open',
+    tpl: studentPromptTemplates[0],
+  },
+  {
+    label: '智能答疑',
+    hint: '难点讲明白 · 一听就懂',
+    icon: 'fas fa-lightbulb',
+    tpl: studentPromptTemplates[1],
+  },
+  {
+    label: '复习计划',
+    hint: '定制周期 · 每天学什么',
+    icon: 'fas fa-calendar-check',
+    tpl: studentPromptTemplates[2],
+  },
+  {
+    label: '学习提醒',
+    hint: '邮件 / 定时 · 到点不忘',
+    icon: 'fas fa-bell',
+    tpl: studentPromptTemplates[3],
+  },
+];
+
+const teacherWelcomeIntro =
+  '创建/发布作业前会先让您确认；催交、批量批改、学情看板均可一句话完成。';
+
+const teacherWelcomeCapabilities = [
+  {
+    label: '发布作业',
+    hint: '创建并发布课堂任务',
+    icon: 'fas fa-paper-plane',
+    tpl: teacherPromptTemplates[0],
+  },
+  {
+    label: '从文档建任务',
+    hint: '导入任务书快速建课',
+    icon: 'fas fa-file-import',
+    tpl: teacherPromptTemplates[1],
+  },
+  {
+    label: '催交提醒',
+    hint: '一键提醒未交学生',
+    icon: 'fas fa-bell',
+    tpl: teacherPromptTemplates[2],
+  },
+  {
+    label: '批量批改',
+    hint: 'AI 建议 · 您来确认',
+    icon: 'fas fa-clipboard-check',
+    tpl: teacherPromptTemplates[3],
+  },
+];
+
 const welcomeText = props.teacherMode
   ? '您好，我是教学 Agent～创建/发布作业前会先让您确认；也可用「从文档建任务」导入任务书。催交、批量批改、学情看板均可一句话执行。'
   : '嗨，我是智学伴～就像坐在你旁边一起自习的老朋友。不管是整理笔记、帮你把难题讲明白，还是咱们一起排个复习节奏、设个提醒，你随口说一句就行。要是你还想查查天气、出门转转，我也会陪着你慢慢搞定。';
@@ -548,6 +859,12 @@ function templateIcon(tpl) {
     催交提醒: 'fas fa-bell',
     批量批改: 'fas fa-clipboard-check',
     学情看板: 'fas fa-chart-line',
+    整理知识点: 'fas fa-book-open',
+    智能答疑: 'fas fa-lightbulb',
+    复习计划: 'fas fa-calendar-check',
+    邮件提醒: 'fas fa-envelope',
+    定时提醒: 'fas fa-clock',
+    保存我的信息: 'fas fa-id-card',
   };
   return map[tpl.label] || 'fas fa-magic';
 }
@@ -612,6 +929,32 @@ const messages = ref([
 ]);
 const isLoading = ref(false);
 const messagesContainer = ref(null);
+
+const TEACHER_MOBILE_MQ = '(max-width: 960px)';
+const isTeacherMobileViewport = ref(false);
+let teacherMobileMediaQuery = null;
+
+function syncTeacherMobileViewport() {
+  if (typeof window === 'undefined') return;
+  isTeacherMobileViewport.value = window.matchMedia(TEACHER_MOBILE_MQ).matches;
+}
+
+const showStudentWelcome = computed(
+  () =>
+    !props.teacherMode &&
+    !isLoading.value &&
+    messages.value.length === 1 &&
+    messages.value[0]?.role === 'assistant',
+);
+
+const showTeacherWelcome = computed(
+  () =>
+    isTeacherShell.value &&
+    isTeacherMobileViewport.value &&
+    !isLoading.value &&
+    messages.value.length === 1 &&
+    messages.value[0]?.role === 'assistant',
+);
 /** 递增后用于忽略已被新请求取代的旧 SSE 流的 onerror */
 let activeStreamId = 0;
 /** 当前 SSE 请求的 AbortController，用于停止生成 */
@@ -2026,8 +2369,17 @@ function dismissStaleInlineForms() {
 }
 
 onMounted(() => {
+  syncTeacherMobileViewport();
+  if (typeof window !== 'undefined') {
+    teacherMobileMediaQuery = window.matchMedia(TEACHER_MOBILE_MQ);
+    teacherMobileMediaQuery.addEventListener('change', syncTeacherMobileViewport);
+  }
   scrollToBottom();
   refreshStudentUnread();
+});
+
+onUnmounted(() => {
+  teacherMobileMediaQuery?.removeEventListener('change', syncTeacherMobileViewport);
 });
 </script>
 
@@ -2064,7 +2416,9 @@ html.chat-route .chat-page {
   height: 100%;
   max-height: 100%;
   padding: 16px;
-  background: var(--zx-shell-gradient);
+  background:
+    var(--zx-gradient-mesh),
+    var(--zx-shell-gradient);
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -2082,7 +2436,7 @@ html.chat-route .chat-page {
   gap: 12px;
 }
 
-.chat-page header {
+.chat-page header:not(.s-agent-hero) {
   flex-shrink: 0;
   background: rgba(255, 255, 255, 0.08);
   backdrop-filter: blur(20px) saturate(1.3);
@@ -2092,6 +2446,271 @@ html.chat-route .chat-page {
   text-align: center;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
   border: 1px solid rgba(255, 255, 255, 0.14);
+}
+
+/* ── 学生端 Hero ── */
+.s-agent-hero {
+  position: relative;
+  flex-shrink: 0;
+  padding: 16px 20px 14px;
+  border-radius: calc(var(--zx-radius-lg) + 2px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background:
+    linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.14) 0%,
+      rgba(255, 255, 255, 0.08) 45%,
+      rgba(13, 148, 136, 0.12) 100%
+    );
+  backdrop-filter: blur(22px) saturate(1.35);
+  -webkit-backdrop-filter: blur(22px) saturate(1.35);
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.08) inset,
+    0 8px 32px rgba(0, 0, 0, 0.18),
+    0 2px 8px rgba(13, 148, 136, 0.12);
+  overflow: hidden;
+}
+
+.s-agent-hero__glow {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 50% 80% at 95% 10%, rgba(20, 184, 166, 0.22) 0%, transparent 58%),
+    radial-gradient(ellipse 40% 60% at 5% 90%, rgba(34, 211, 238, 0.12) 0%, transparent 55%);
+}
+
+.s-agent-hero__top {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.s-agent-hero__brand {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  min-width: 0;
+}
+
+.s-agent-hero__icon {
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+  font-size: 18px;
+  color: #fff;
+  background: linear-gradient(145deg, #0f766e 0%, #0d9488 48%, #14b8a6 100%);
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.2) inset,
+    0 4px 14px rgba(13, 148, 136, 0.35);
+  flex-shrink: 0;
+}
+
+.s-agent-hero__copy {
+  min-width: 0;
+  text-align: left;
+}
+
+.s-agent-hero__eyebrow {
+  display: inline-flex;
+  align-items: center;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #99f6e4;
+  margin-bottom: 4px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgba(13, 148, 136, 0.22);
+  border: 1px solid rgba(153, 246, 228, 0.25);
+}
+
+.s-agent-hero__brand h1 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1.45rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.15;
+  color: #fff;
+}
+
+.s-agent-hero__brand p {
+  margin: 5px 0 0;
+  font-size: 0.82rem;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.78);
+  max-width: 52ch;
+}
+
+.s-agent-hero__meta {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
+}
+
+.s-agent-hero__live {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #6ee7b7;
+  background: rgba(16, 185, 129, 0.14);
+  border: 1px solid rgba(110, 231, 183, 0.28);
+}
+
+.s-agent-hero__live-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #34d399;
+  box-shadow: 0 0 0 3px rgba(52, 211, 153, 0.22);
+  animation: s-agent-live-pulse 2s ease-in-out infinite;
+}
+
+@keyframes s-agent-live-pulse {
+  0%, 100% {
+    box-shadow: 0 0 0 3px rgba(52, 211, 153, 0.22);
+    transform: scale(1);
+  }
+  50% {
+    box-shadow: 0 0 0 6px rgba(52, 211, 153, 0.08);
+    transform: scale(1.08);
+  }
+}
+
+.s-agent-hero__nav {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+}
+
+.s-nav-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 11px;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-decoration: none;
+  color: rgba(255, 255, 255, 0.92);
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  transition: background 0.2s ease, border-color 0.2s ease, transform 0.15s ease;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.s-nav-pill:hover {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.32);
+  transform: translateY(-1px);
+}
+
+.s-nav-pill--msg {
+  position: relative;
+}
+
+.s-nav-pill--logout {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.s-nav-pill i {
+  font-size: 0.72rem;
+  opacity: 0.9;
+}
+
+.s-agent-hero__chips {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.s-agent-hero__chips-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.55);
+  text-align: left;
+}
+
+.s-agent-hero__chips-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.s-agent-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 5px 12px 5px 6px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.95);
+  font-family: inherit;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    color 0.2s ease,
+    background 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.15s ease;
+}
+
+.s-agent-chip__icon {
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 7px;
+  font-size: 10px;
+  color: #5eead4;
+  background: rgba(13, 148, 136, 0.28);
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.s-agent-chip__text {
+  white-space: nowrap;
+}
+
+.s-agent-chip:hover {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(153, 246, 228, 0.35);
+  box-shadow: 0 4px 14px rgba(13, 148, 136, 0.2);
+  transform: translateY(-1px);
+}
+
+.s-agent-chip:hover .s-agent-chip__icon {
+  color: #fff;
+  background: linear-gradient(135deg, #0f766e, #14b8a6);
+}
+
+.s-agent-chip:active {
+  transform: translateY(0);
 }
 
 .header-row {
@@ -2243,6 +2862,337 @@ html.chat-route .chat-page {
   overflow: hidden;
   border: 1px solid rgba(255, 255, 255, 0.45);
   box-shadow: var(--zx-shadow-card);
+}
+
+.chat-container--student {
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.6) inset,
+    0 12px 40px rgba(15, 23, 42, 0.14),
+    0 4px 16px rgba(13, 148, 136, 0.08);
+}
+
+.chat-container--student .chat-messages {
+  background: linear-gradient(180deg, #f8fafc 0%, #f0fdfa 48%, #ecfeff 100%);
+}
+
+.s-welcome-panel {
+  position: relative;
+  align-self: flex-start;
+  width: min(580px, 100%);
+  margin: 4px 0 12px;
+  padding: 20px 20px 16px;
+  text-align: left;
+  border-radius: 20px;
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255, 255, 255, 0.98) 0%,
+      rgba(240, 253, 250, 0.96) 48%,
+      rgba(236, 254, 255, 0.94) 100%
+    );
+  border: 1px solid rgba(13, 148, 136, 0.16);
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.85) inset,
+    0 4px 6px rgba(15, 23, 42, 0.02),
+    0 12px 32px rgba(13, 148, 136, 0.1),
+    0 24px 48px rgba(15, 23, 42, 0.06);
+  overflow: hidden;
+  animation: sWelcomeIn 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes sWelcomeIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.s-welcome-panel__glow {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 70% 55% at 100% 0%, rgba(20, 184, 166, 0.14) 0%, transparent 58%),
+    radial-gradient(ellipse 50% 45% at 0% 100%, rgba(34, 211, 238, 0.1) 0%, transparent 52%);
+}
+
+.s-welcome-panel__shine {
+  pointer-events: none;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.95) 35%,
+    rgba(153, 246, 228, 0.65) 50%,
+    rgba(255, 255, 255, 0.95) 65%,
+    transparent
+  );
+}
+
+.s-welcome-panel__head {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.s-welcome-panel__brand {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  min-width: 0;
+  flex: 1;
+}
+
+.s-welcome-panel__copy {
+  min-width: 0;
+  flex: 1;
+}
+
+.s-welcome-panel__icon {
+  position: relative;
+  width: 48px;
+  height: 48px;
+  margin: 0;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  border-radius: 14px;
+  font-size: 20px;
+  color: #fff;
+  background: linear-gradient(145deg, #0f766e 0%, #0d9488 48%, #14b8a6 100%);
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.25) inset,
+    0 6px 18px rgba(13, 148, 136, 0.32);
+}
+
+.s-welcome-panel__icon-ring {
+  position: absolute;
+  inset: -4px;
+  border-radius: 17px;
+  border: 1px solid rgba(13, 148, 136, 0.22);
+  opacity: 0.7;
+}
+
+.s-welcome-panel__eyebrow {
+  display: inline-flex;
+  align-items: center;
+  margin-bottom: 6px;
+  padding: 2px 9px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #0f766e;
+  background: rgba(13, 148, 136, 0.1);
+  border: 1px solid rgba(13, 148, 136, 0.16);
+}
+
+.s-welcome-panel__title {
+  margin: 0 0 5px;
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.2;
+  color: #0f172a;
+}
+
+.s-welcome-panel__desc {
+  margin: 0;
+  font-size: 0.8rem;
+  line-height: 1.55;
+  color: #64748b;
+}
+
+.s-welcome-panel__badge {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: #0f766e;
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid rgba(13, 148, 136, 0.14);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.s-welcome-panel__badge-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #34d399;
+  box-shadow: 0 0 0 3px rgba(52, 211, 153, 0.2);
+  animation: sWelcomeLivePulse 2s ease-in-out infinite;
+}
+
+@keyframes sWelcomeLivePulse {
+  0%, 100% {
+    box-shadow: 0 0 0 3px rgba(52, 211, 153, 0.2);
+    transform: scale(1);
+  }
+  50% {
+    box-shadow: 0 0 0 6px rgba(52, 211, 153, 0.08);
+    transform: scale(1.08);
+  }
+}
+
+.s-welcome-panel__intro {
+  position: relative;
+  z-index: 1;
+  margin: 14px 0 0;
+  padding: 10px 12px;
+  border-radius: 12px;
+  font-size: 0.82rem;
+  line-height: 1.65;
+  color: #334155;
+  background: rgba(255, 255, 255, 0.55);
+  border: 1px solid rgba(13, 148, 136, 0.08);
+  border-left: 3px solid #14b8a6;
+}
+
+.s-welcome-panel__grid {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.s-welcome-cap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 11px;
+  border-radius: 14px;
+  text-align: left;
+  font-family: inherit;
+  cursor: pointer;
+  color: inherit;
+  background: rgba(255, 255, 255, 0.78);
+  border: 1px solid rgba(13, 148, 136, 0.12);
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.15s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.s-welcome-cap:hover {
+  background: #fff;
+  border-color: rgba(13, 148, 136, 0.26);
+  box-shadow: 0 4px 14px rgba(13, 148, 136, 0.12);
+  transform: translateY(-1px);
+}
+
+.s-welcome-cap:active {
+  transform: translateY(0);
+}
+
+.s-welcome-cap__icon {
+  flex-shrink: 0;
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border-radius: 10px;
+  font-size: 0.82rem;
+  color: #fff;
+  background: linear-gradient(135deg, #0f766e, #14b8a6);
+  box-shadow: 0 3px 10px rgba(13, 148, 136, 0.22);
+}
+
+.s-welcome-cap__body {
+  min-width: 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.s-welcome-cap__body strong {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #0f172a;
+  letter-spacing: -0.01em;
+}
+
+.s-welcome-cap__body small {
+  font-size: 0.68rem;
+  line-height: 1.35;
+  color: #64748b;
+}
+
+.s-welcome-cap__arrow {
+  flex-shrink: 0;
+  font-size: 0.58rem;
+  color: #94a3b8;
+  opacity: 0.7;
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.s-welcome-cap:hover .s-welcome-cap__arrow {
+  color: #0d9488;
+  transform: translateX(2px);
+}
+
+.s-welcome-panel__footer {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(13, 148, 136, 0.1);
+}
+
+.s-welcome-panel__footer span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: #64748b;
+}
+
+.s-welcome-panel__footer i {
+  font-size: 0.62rem;
+  color: #0d9488;
+  opacity: 0.85;
+}
+
+.s-chat-mobile-bar {
+  display: none;
+}
+
+.s-chat-compose {
+  flex-shrink: 0;
+}
+
+.s-chat-compose .s-mobile-chips {
+  display: none;
 }
 
 .chat-header {
@@ -2528,11 +3478,41 @@ html.chat-route .chat-page {
 .chat-input {
   flex-shrink: 0;
   display: flex;
-  align-items: flex-end;
+  flex-direction: column;
   padding: 14px 18px 18px;
   background: #fff;
   border-top: 1px solid var(--zx-border);
+  gap: 8px;
+}
+
+.chat-input--floating {
+  padding: 0 16px 14px;
+  background: transparent;
+  border-top: none;
+}
+
+.chat-input-bar {
+  display: flex;
+  align-items: flex-end;
   gap: 10px;
+}
+
+.chat-input--floating .chat-input-bar {
+  padding: 8px 8px 8px 12px;
+  background: #fff;
+  border: 1px solid rgba(13, 148, 136, 0.14);
+  border-radius: 18px;
+  box-shadow:
+    0 2px 12px rgba(15, 23, 42, 0.06),
+    0 0 0 1px rgba(255, 255, 255, 0.8) inset;
+}
+
+.chat-input-hint {
+  margin: 0;
+  padding: 0 6px;
+  font-size: 0.72rem;
+  color: var(--zx-muted);
+  text-align: center;
 }
 
 .chat-input textarea {
@@ -2547,6 +3527,24 @@ html.chat-route .chat-page {
   line-height: 1.45;
   background: #f8fafc;
   transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+}
+
+.chat-input--floating textarea {
+  border: none;
+  background: transparent;
+  padding: 10px 4px 10px 0;
+  height: 48px;
+}
+
+.chat-input--floating textarea:focus {
+  box-shadow: none;
+}
+
+.chat-input--floating .chat-input-bar:focus-within {
+  border-color: var(--zx-teal);
+  box-shadow:
+    0 0 0 3px rgba(13, 148, 136, 0.12),
+    0 4px 16px rgba(13, 148, 136, 0.1);
 }
 
 .chat-input textarea:focus {
@@ -2574,6 +3572,20 @@ html.chat-route .chat-page {
   justify-content: center;
   gap: 8px;
   box-shadow: 0 4px 14px rgba(13, 148, 136, 0.3);
+  flex-shrink: 0;
+}
+
+.chat-input--floating .send-button,
+.chat-input--floating .stop-button {
+  min-width: 44px;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border-radius: 12px;
+}
+
+.chat-input--floating .send-btn-label {
+  display: none;
 }
 
 .send-button:hover {
@@ -2718,28 +3730,294 @@ html.chat-route .chat-page {
   text-decoration: underline;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 767px) {
+  html.chat-route .chat-page .chat-input-hint {
+    display: none;
+  }
+
   html.chat-route .chat-page {
-    padding: 10px;
-    padding-bottom: calc(10px + 64px + env(safe-area-inset-bottom, 0px));
+    padding: 0;
+    padding-bottom: var(--mobile-nav-pad, calc(72px + env(safe-area-inset-bottom, 0px)));
+    background: #f1f5f9;
   }
 
-  html.chat-route .chat-page .user-nav {
+  html.chat-route .chat-page .app-container {
+    gap: 0;
+    max-width: none;
+    height: 100%;
+  }
+
+  html.chat-route .chat-page .app-content {
+    flex: 1;
+    min-height: 0;
+  }
+
+  html.chat-route .chat-page .s-agent-hero {
     display: none;
   }
 
-  html.chat-route .chat-page > header .subtitle,
-  html.chat-route .chat-page > header .template-bar {
+  html.chat-route .chat-page .user-nav,
+  html.chat-route .chat-page .s-agent-hero__nav {
     display: none;
   }
 
-  html.chat-route .chat-page > header .header-row h1 {
-    font-size: 1.05rem;
+  html.chat-route .chat-page > header:not(.s-agent-hero) .subtitle,
+  html.chat-route .chat-page > header:not(.s-agent-hero) .template-bar {
+    display: none;
   }
 
-  html.chat-route .chat-page .nav-btn {
-    min-width: 44px;
-    min-height: 44px;
+  html.chat-route .chat-page .chat-container--student {
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    background: #f1f5f9;
+    height: 100%;
+  }
+
+  .s-chat-mobile-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
+    padding: calc(10px + env(safe-area-inset-top, 0px)) 14px 10px;
+    background: linear-gradient(135deg, #047857 0%, #0d9488 55%, #14b8a6 100%);
+    color: #fff;
+    box-shadow: 0 2px 12px rgba(13, 148, 136, 0.2);
+  }
+
+  .s-chat-mobile-bar__brand {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+  }
+
+  .s-chat-mobile-bar__icon {
+    width: 32px;
+    height: 32px;
+    display: grid;
+    place-items: center;
+    border-radius: 9px;
+    font-size: 0.9rem;
+    background: rgba(255, 255, 255, 0.18);
+  }
+
+  .s-chat-mobile-bar__title {
+    font-family: var(--font-display);
+    font-size: 1rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+  }
+
+  .s-chat-mobile-bar__live {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 9px;
+    border-radius: 999px;
+    font-size: 0.68rem;
+    font-weight: 600;
+    color: #ecfdf5;
+    background: rgba(255, 255, 255, 0.14);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+
+  .s-chat-mobile-bar__dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #6ee7b7;
+    box-shadow: 0 0 0 2px rgba(110, 231, 183, 0.3);
+  }
+
+  html.chat-route .chat-page .chat-container--student .chat-messages {
+    padding: 12px 14px 8px;
+    background: #f1f5f9;
+  }
+
+  .s-welcome-panel {
+    padding: 14px 14px 12px;
+    margin: 0 0 8px;
+    border-radius: 18px;
+    box-shadow:
+      0 0 0 1px rgba(255, 255, 255, 0.75) inset,
+      0 8px 24px rgba(13, 148, 136, 0.1);
+  }
+
+  .s-welcome-panel__head {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .s-welcome-panel__badge {
+    align-self: flex-start;
+  }
+
+  .s-welcome-panel__icon {
+    width: 42px;
+    height: 42px;
+    font-size: 17px;
+    border-radius: 12px;
+  }
+
+  .s-welcome-panel__title {
+    font-size: 1rem;
+  }
+
+  .s-welcome-panel__desc {
+    font-size: 0.74rem;
+    line-height: 1.5;
+  }
+
+  .s-welcome-panel__intro {
+    margin-top: 12px;
+    padding: 8px 10px;
+    font-size: 0.76rem;
+    line-height: 1.55;
+  }
+
+  .s-welcome-panel__grid {
+    grid-template-columns: 1fr;
+    gap: 6px;
+    margin-top: 12px;
+  }
+
+  .s-welcome-cap {
+    padding: 9px 10px;
+    border-radius: 12px;
+  }
+
+  .s-welcome-cap__icon {
+    width: 32px;
+    height: 32px;
+    font-size: 0.76rem;
+  }
+
+  .s-welcome-panel__footer {
+    margin-top: 10px;
+    padding-top: 10px;
+    gap: 6px 10px;
+  }
+
+  .s-chat-compose {
+    flex-shrink: 0;
+    background: #fff;
+    border-top: 1px solid rgba(15, 23, 42, 0.06);
+    box-shadow: 0 -4px 20px rgba(15, 23, 42, 0.06);
+    padding-bottom: 4px;
+  }
+
+  .s-chat-compose .s-mobile-chips {
+    display: flex;
+    flex-shrink: 0;
+    gap: 7px;
+    padding: 8px 12px 0;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    background: #fff;
+  }
+
+  .s-chat-compose .s-mobile-chips::-webkit-scrollbar {
+    display: none;
+  }
+
+  .s-mobile-chip {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 11px 6px 7px;
+    border: 1px solid rgba(13, 148, 136, 0.14);
+    border-radius: 999px;
+    background: #f8fafc;
+    color: #0f766e;
+    font-family: inherit;
+    font-size: 0.72rem;
+    font-weight: 600;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .s-mobile-chip i {
+    display: grid;
+    place-items: center;
+    width: 20px;
+    height: 20px;
+    border-radius: 6px;
+    font-size: 0.58rem;
+    color: #fff;
+    background: linear-gradient(135deg, #0f766e, #14b8a6);
+  }
+
+  .s-mobile-chip:active {
+    background: #ecfdf5;
+  }
+
+  .s-mobile-chips--teacher .s-mobile-chip {
+    border-color: rgba(99, 102, 241, 0.16);
+    background: #eef2ff;
+    color: #4338ca;
+  }
+
+  .s-mobile-chips--teacher .s-mobile-chip i {
+    background: linear-gradient(135deg, #4f46e5, #6366f1);
+  }
+
+  .chat-input--floating {
+    padding: 8px 12px 10px;
+    background: transparent;
+    border-top: none;
+  }
+
+  .chat-input--floating .chat-input-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 4px 4px 14px;
+    background: #f8fafc;
+    border: 1px solid rgba(13, 148, 136, 0.14);
+    border-radius: 22px;
+    box-shadow: inset 0 1px 2px rgba(15, 23, 42, 0.03);
+  }
+
+  .chat-input--floating .chat-input-bar:focus-within {
+    border-color: rgba(13, 148, 136, 0.35);
+    background: #fff;
+    box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.1);
+  }
+
+  .chat-input--floating textarea {
+    min-height: 40px;
+    height: 40px;
+    max-height: 96px;
+    padding: 10px 0;
+    line-height: 1.35;
+    font-size: 16px;
+    border: none;
+    background: transparent;
+    resize: none;
+  }
+
+  .chat-input--floating .send-button,
+  .chat-input--floating .stop-button {
+    min-width: 40px;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .chat-input--floating .send-button:not(:disabled) {
+    background: linear-gradient(145deg, #0f766e, #14b8a6);
+    box-shadow: 0 3px 10px rgba(13, 148, 136, 0.28);
+  }
+
+  .chat-input--floating .send-button:disabled {
+    background: #e2e8f0;
+    color: #94a3b8;
+    box-shadow: none;
   }
 
   .app-content {
@@ -2748,12 +4026,16 @@ html.chat-route .chat-page {
   }
 
   .message {
-    max-width: 90%;
+    max-width: 92%;
   }
 
   .route-map-container {
     width: 100% !important;
     height: 400px !important;
   }
+}
+
+.s-mobile-chips {
+  display: none;
 }
 </style>

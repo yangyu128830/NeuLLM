@@ -4,6 +4,7 @@ import router from './router'
 
 import './assets/global.css'
 import './assets/classroom-theme.css'
+import './assets/mobile-shell.css'
 import '@fortawesome/fontawesome-free/css/all.css';
 import heroBg from './assets/landing-hero.png'
 

@@ -194,9 +194,10 @@
                   </div>
                 </td>
                 <td
-                  v-for="st in subTasks"
+                  v-for="(st, idx) in subTasks"
                   :key="st.subTaskId"
                   class="t-prog-matrix__col-task"
+                  :data-label="`子任务 ${idx + 1} · ${st.title}`"
                 >
                   <div
                     v-if="getCell(row, st.subTaskId)"

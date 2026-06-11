@@ -1,8 +1,8 @@
 <template>
-  <nav class="mtb mtb--teal" aria-label="学生端主导航">
+  <nav class="mtb mtb--indigo" aria-label="教师端主导航">
     <div class="mtb-inner">
       <router-link
-        v-for="item in STUDENT_NAV_ITEMS"
+        v-for="item in TEACHER_NAV_ITEMS"
         :key="item.key"
         :to="item.to"
         class="mtb-item"
@@ -11,9 +11,9 @@
         <span class="mtb-icon">
           <i class="fas" :class="item.icon"></i>
           <em
-            v-if="item.key === 'messages' && unreadCount > 0"
+            v-if="item.key === 'grading' && pendingCount > 0"
             class="mtb-badge"
-          >{{ unreadCount > 99 ? '99+' : unreadCount }}</em>
+          >{{ pendingCount > 99 ? '99+' : pendingCount }}</em>
         </span>
         <span class="mtb-label">{{ item.label }}</span>
       </router-link>
@@ -22,10 +22,10 @@
 </template>
 
 <script setup>
-import { STUDENT_NAV_ITEMS } from '@/constants/studentNav';
+import { TEACHER_NAV_ITEMS } from '@/constants/teacherNav';
 
 defineProps({
   active: { type: String, default: '' },
-  unreadCount: { type: Number, default: 0 },
+  pendingCount: { type: Number, default: 0 },
 });
 </script>

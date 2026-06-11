@@ -68,9 +68,9 @@ html.chat-route #app {
 /* 学生端移动端：底部 Tab 留白 + 触控友好 */
 @media (max-width: 767px) {
   .student-page {
-    --layout-pad: 12px;
+    --layout-pad: 14px;
     --layout-max: 100%;
-    padding-bottom: calc(64px + env(safe-area-inset-bottom, 0px));
+    padding-bottom: var(--mobile-nav-pad, calc(72px + env(safe-area-inset-bottom, 0px)));
   }
 
   .student-page .page-inner {

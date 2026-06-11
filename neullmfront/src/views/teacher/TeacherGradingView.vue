@@ -126,9 +126,10 @@
                   </div>
                 </td>
                 <td
-                  v-for="st in subTasks"
+                  v-for="(st, idx) in subTasks"
                   :key="st.subTaskId"
                   class="t-prog-matrix__col-task t-grade-matrix__cell"
+                  :data-label="`子任务 ${idx + 1} · ${st.title}`"
                   :class="{
                     't-grade-matrix__cell--interactive': !!resolveSubmission(row, st.subTaskId),
                     't-grade-matrix__cell--dim': !matchesFilter(resolveSubmission(row, st.subTaskId)),

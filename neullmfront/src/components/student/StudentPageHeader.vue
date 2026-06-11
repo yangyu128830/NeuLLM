@@ -40,7 +40,7 @@
         </router-link>
 
         <button type="button" class="sph-logout" title="退出登录" @click="$emit('logout')">
-          <i class="fas fa-right-from-bracket"></i>
+          <i class="fas fa-sign-out-alt" aria-hidden="true"></i>
           <span class="sph-logout-text">退出</span>
         </button>
       </div>
@@ -313,16 +313,55 @@ const chatNav = STUDENT_CHAT_NAV;
 }
 
 @media (max-width: 767px) {
+  .sph {
+    background: linear-gradient(135deg, #047857 0%, #0d9488 42%, #14b8a6 78%, #2dd4bf 100%);
+    box-shadow: 0 4px 24px rgba(13, 148, 136, 0.18);
+  }
+
   .sph-inner {
-    padding-top: calc(12px + env(safe-area-inset-top, 0px));
-    padding-bottom: 12px;
-    gap: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: calc(10px + env(safe-area-inset-top, 0px));
+    padding-bottom: 10px;
+    gap: 10px;
+  }
+
+  .sph-brand {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .sph-actions {
+    flex-shrink: 0;
+    width: auto;
+    overflow: visible;
+    flex-wrap: nowrap;
+    gap: 0;
+  }
+
+  .sph-logout {
+    width: 36px;
+    height: 36px;
+    min-height: 36px;
+    padding: 0;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.12);
+    border-color: rgba(255, 255, 255, 0.22);
+  }
+
+  .sph-logout i {
+    font-size: 0.95rem;
+    color: #fff;
   }
 
   .sph-icon {
-    width: 40px;
-    height: 40px;
-    font-size: 1rem;
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    font-size: 0.95rem;
+    background: rgba(255, 255, 255, 0.18);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   }
 
   .sph-tag {
@@ -330,7 +369,9 @@ const chatNav = STUDENT_CHAT_NAV;
   }
 
   .sph-copy h1 {
-    font-size: 1.1rem;
+    font-size: 1rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
   }
 
   .sph-subtitle {
@@ -349,9 +390,9 @@ const chatNav = STUDENT_CHAT_NAV;
     display: none;
   }
 
-  .sph-logout {
-    min-width: 44px;
-    padding: 8px 12px;
+  :slotted(.btn-ghost),
+  :slotted(.btn-outline) {
+    display: none;
   }
 }
 </style>

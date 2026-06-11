@@ -1,0 +1,1086 @@
+/* 智学伴 · 教师端手机精致化（≤960px，不影响 PC） */
+
+/* 桌面端隐藏教师手机专属 UI */
+@media (min-width: 961px) {
+  .teacher-app .t-chat-mobile-bar,
+  .teacher-app .t-welcome-panel {
+    display: none !important;
+  }
+}
+
+@media (max-width: 960px) {
+  html.teacher-route body,
+  html.teacher-route #app {
+    overflow-x: clip;
+  }
+
+  html.teacher-route body,
+  html.teacher-route #app {
+    background:
+      radial-gradient(ellipse 80% 45% at 50% -8%, rgba(99, 102, 241, 0.1) 0%, transparent 55%),
+      #eef2f6;
+  }
+
+  .teacher-app {
+    --t-mobile-title: 22px;
+    --t-mobile-body: 15px;
+    --t-mobile-meta: 13px;
+    --t-mobile-label: 12px;
+    --t-mobile-card-radius: 16px;
+    --t-mobile-card-shadow:
+      0 1px 2px rgba(15, 23, 42, 0.04),
+      0 6px 22px rgba(15, 23, 42, 0.08);
+    --t-mobile-pad-x: 14px;
+    overflow-x: clip;
+    max-width: 100%;
+  }
+
+  .teacher-app .teacher-main {
+    padding-left: var(--t-mobile-pad-x);
+    padding-right: var(--t-mobile-pad-x);
+    max-width: 100%;
+    overflow-x: clip;
+    overflow-y: auto;
+    background-size: 28px 28px, 28px 28px, auto, auto, auto;
+  }
+
+  .teacher-app .t-page {
+    max-width: 100%;
+    min-width: 0;
+    width: 100%;
+    overflow-x: clip;
+    gap: 10px;
+  }
+
+  .teacher-app .t-ws-body,
+  .teacher-app .t-ws-body--scroll {
+    min-width: 0;
+    width: 100%;
+    overflow-x: clip;
+  }
+
+  /* 卡片/面板统一宽度，避免左右被裁切 */
+  .teacher-app .t-ws-context,
+  .teacher-app .t-ws-context__panel,
+  .teacher-app .t-prog-overview,
+  .teacher-app .t-prog-matrix,
+  .teacher-app .t-grade-command,
+  .teacher-app .t-tasks-sidebar,
+  .teacher-app .t-tasks-panel,
+  .teacher-app .t-profile-banner,
+  .teacher-app .t-profile-card,
+  .teacher-app .t-profile-shell {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  .teacher-app .teacher-main:has(.chat-page--teacher-shell) {
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  /* ── 页头 ── */
+  .teacher-app .t-page-head,
+  .teacher-app .t-hero,
+  .teacher-app .t-ws-head {
+    padding: calc(10px + env(safe-area-inset-top, 0px)) 0 14px !important;
+  }
+
+  .teacher-app .t-ws-head__main h1 {
+    font-size: var(--t-mobile-title) !important;
+    letter-spacing: -0.03em;
+  }
+
+  .teacher-app .t-ws-head__main h1::after {
+    width: 36px;
+    height: 3px;
+    margin-top: 8px;
+  }
+
+  .teacher-app .t-ws-head__main p {
+    font-size: var(--t-mobile-body);
+    margin-top: 8px;
+    line-height: 1.55;
+    max-width: none;
+    padding-left: 0;
+    border-left: none;
+  }
+
+  .teacher-app .t-ws-head__actions {
+    max-width: 100% !important;
+    width: 100%;
+    margin-left: 0 !important;
+  }
+
+  .teacher-app .t-prog-head__title-row,
+  .teacher-app .t-grade-head__title-row {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .teacher-app .t-ws-context--head .t-ws-context__panel {
+    width: 100%;
+    overflow: visible;
+  }
+
+  .teacher-app .t-ws-context__panel {
+    overflow: visible;
+  }
+
+  .teacher-app .t-ws-context__cell,
+  .teacher-app .t-ws-context__cell--course,
+  .teacher-app .t-ws-context__cell--task,
+  .teacher-app .t-ws-context__cell--actions {
+    width: 100%;
+    max-width: none;
+    overflow: visible;
+  }
+
+  .teacher-app .t-task-picker {
+    min-width: 0;
+    max-width: none;
+    width: 100%;
+  }
+
+  .teacher-app .t-task-picker__bar {
+    overflow: visible;
+  }
+
+  .teacher-app .t-task-picker__trigger,
+  .teacher-app .t-task-picker__trigger--embedded {
+    width: 100%;
+    max-width: none;
+  }
+
+  /* 下拉菜单：左对齐全宽，避免右侧锚定导致左侧截断 */
+  .teacher-app .t-ws-context--head .t-task-picker__menu,
+  .teacher-app .t-task-picker__menu {
+    left: 0 !important;
+    right: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  .teacher-app .t-ws-context--head .t-ws-context__menu,
+  .teacher-app .t-ws-context__menu {
+    left: 0 !important;
+    right: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  .teacher-app .t-sidebar-course {
+    overflow: visible;
+  }
+
+  .teacher-app .t-sidebar-course__menu {
+    left: 0 !important;
+    right: 0 !important;
+  }
+
+  .teacher-app .t-ws-context__cell--actions {
+    width: 100%;
+    padding: 4px 0 0 !important;
+    flex-wrap: wrap;
+  }
+
+  .teacher-app .t-ws-context__cell--actions .t-btn-solid,
+  .teacher-app .t-ws-context__cell--actions .t-btn-text {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  .teacher-app .teacher-main:has(.t-prog-page),
+  .teacher-app .teacher-main:has(.t-grade-page),
+  .teacher-app .teacher-main:has(.t-tasks-page),
+  .teacher-app .teacher-main:has(.t-profile-page) {
+    overflow-x: clip;
+  }
+
+  .teacher-app .t-prog-live-badge,
+  .teacher-app .t-grade-live-badge {
+    font-size: var(--t-mobile-label);
+    padding: 4px 10px;
+  }
+
+  /* ── 按钮 / 筛选 ── */
+  .teacher-app .t-btn-solid,
+  .teacher-app .t-btn-ghost,
+  .teacher-app .t-action-btn {
+    font-size: 14px;
+    min-height: 44px;
+    padding: 10px 16px;
+  }
+
+  .teacher-app .t-filter-tab {
+    font-size: var(--t-mobile-meta);
+    padding: 10px 14px;
+  }
+
+  /* ── 工作台上下文 ── */
+  .teacher-app .t-ws-context {
+    margin-bottom: 12px;
+  }
+
+  .teacher-app .t-ws-context__panel {
+    border-radius: var(--t-mobile-card-radius);
+    box-shadow: var(--t-mobile-card-shadow);
+    padding: 8px;
+  }
+
+  .teacher-app .t-ws-context__cell--actions .t-action-btn {
+    min-height: 40px;
+    font-size: var(--t-mobile-meta);
+  }
+
+  /* ── 通用卡片抬升 ── */
+  .teacher-app .t-prog-overview,
+  .teacher-app .t-prog-focus-card,
+  .teacher-app .t-prog-zone,
+  .teacher-app .t-grade-command,
+  .teacher-app .t-grade-item,
+  .teacher-app .t-tasks-sidebar,
+  .teacher-app .t-tasks-panel,
+  .teacher-app .t-tasks-hub-card,
+  .teacher-app .t-profile-banner,
+  .teacher-app .t-profile-card,
+  .teacher-app .t-metric-card,
+  .teacher-app .t-students-card {
+    border-radius: var(--t-mobile-card-radius);
+    box-shadow: var(--t-mobile-card-shadow);
+  }
+
+  /* ── 学情看板 ── */
+  .teacher-app .t-prog-page {
+    gap: 10px;
+  }
+
+  .teacher-app .t-prog-overview__insight-inner {
+    padding: 16px 14px !important;
+    gap: 16px;
+  }
+
+  .teacher-app .t-prog-overview__copy h2 {
+    font-size: 1.1rem;
+    line-height: 1.35;
+  }
+
+  .teacher-app .t-prog-overview__copy p {
+    font-size: 0.86rem;
+    line-height: 1.55;
+  }
+
+  .teacher-app .t-prog-overview__meta {
+    font-size: 0.78rem;
+    margin-top: 10px;
+  }
+
+  .teacher-app .t-prog-overview__aside {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 14px;
+    width: 100%;
+  }
+
+  .teacher-app .t-prog-overview__ring {
+    width: 88px;
+    height: 88px;
+  }
+
+  .teacher-app .t-prog-overview__ring-label strong {
+    font-size: 1.45rem;
+  }
+
+  .teacher-app .t-prog-overview__buckets {
+    flex: 1;
+    min-width: min(100%, 220px);
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 6px;
+  }
+
+  .teacher-app .t-prog-overview__bucket {
+    font-size: 0.72rem;
+    padding: 6px 10px;
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  .teacher-app .t-prog-overview__metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  .teacher-app .t-prog-overview__metric {
+    border-right: none !important;
+    border-bottom: 1px solid var(--t-line);
+    padding: 14px 10px;
+  }
+
+  .teacher-app .t-prog-overview__metric:nth-child(odd) {
+    border-right: 1px solid var(--t-line) !important;
+  }
+
+  .teacher-app .t-prog-overview__metric:nth-last-child(-n + 2) {
+    border-bottom: none;
+  }
+
+  .teacher-app .t-prog-overview__metric:nth-child(5) {
+    grid-column: 1 / -1;
+    border-right: none !important;
+    border-top: 1px solid var(--t-line);
+  }
+
+  .teacher-app .t-prog-overview__metric strong {
+    font-size: 1.25rem;
+  }
+
+  .teacher-app .t-prog-overview__toolbar {
+    padding: 12px 14px;
+    gap: 10px;
+  }
+
+  .teacher-app .t-prog-search {
+    min-width: 0;
+    width: 100%;
+  }
+
+  .teacher-app .t-prog-focus-card {
+    padding: 14px 14px;
+  }
+
+  .teacher-app .t-prog-focus-card__name {
+    font-size: var(--t-mobile-body);
+  }
+
+  /* 进度/批改矩阵 · 手机卡片化 */
+  .teacher-app .t-prog-matrix {
+    margin-left: 0;
+    margin-right: 0;
+    border-radius: var(--t-mobile-card-radius);
+  }
+
+  .teacher-app .t-prog-matrix__scroll {
+    max-height: none;
+    overflow: visible;
+    padding: 10px 10px 4px;
+  }
+
+  .teacher-app .t-prog-matrix__table thead {
+    display: none;
+  }
+
+  .teacher-app .t-prog-matrix__table,
+  .teacher-app .t-prog-matrix__table tbody {
+    display: block;
+  }
+
+  .teacher-app .t-prog-matrix__row {
+    display: block;
+    margin-bottom: 10px;
+    padding: 12px 14px;
+    border-radius: 14px;
+    border: 1px solid rgba(15, 23, 42, 0.07);
+    background: #fff;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+  }
+
+  .teacher-app .t-prog-matrix__row:last-child {
+    margin-bottom: 0;
+  }
+
+  .teacher-app .t-prog-matrix__row td {
+    display: block;
+    border-bottom: none;
+    padding: 0;
+  }
+
+  .teacher-app .t-prog-matrix__col-student {
+    position: static;
+    min-width: 0;
+    max-width: none;
+    box-shadow: none;
+    margin-bottom: 10px;
+    padding-bottom: 10px !important;
+    border-bottom: 1px solid rgba(15, 23, 42, 0.06);
+  }
+
+  .teacher-app .t-prog-matrix__col-task,
+  .teacher-app .t-prog-matrix__col-pct {
+    position: static;
+    min-width: 0;
+    max-width: none;
+    box-shadow: none;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 9px 0 !important;
+    border-bottom: 1px solid rgba(15, 23, 42, 0.04);
+  }
+
+  .teacher-app .t-prog-matrix__row td:last-child {
+    border-bottom: none;
+    padding-bottom: 0 !important;
+  }
+
+  .teacher-app .t-prog-matrix__col-task::before,
+  .teacher-app .t-prog-matrix__col-pct::before {
+    content: attr(data-label);
+    flex: 1;
+    min-width: 0;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: #64748b;
+    line-height: 1.35;
+    text-align: left;
+  }
+
+  .teacher-app .t-prog-matrix__col-pct::before {
+    content: '完成度';
+  }
+
+  .teacher-app .t-prog-matrix__col-task .t-prog-matrix__chip,
+  .teacher-app .t-grade-matrix__cell .t-prog-matrix__chip {
+    flex-shrink: 0;
+    max-width: 56%;
+  }
+
+  .teacher-app .t-prog-matrix__legend {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+    padding: 12px 14px;
+  }
+
+  .teacher-app .t-prog-matrix__row:nth-child(even) td,
+  .teacher-app .t-prog-matrix__row:hover td {
+    background: transparent;
+  }
+
+  .teacher-app .t-prog-matrix__row--follow {
+    border-color: rgba(245, 158, 11, 0.28);
+    background: linear-gradient(180deg, #fffbeb 0%, #fff 100%);
+  }
+
+  .teacher-app .t-prog-matrix__legend-hint {
+    margin-left: 0;
+    justify-content: center;
+    font-size: 0.78rem;
+  }
+
+  .teacher-app .t-roster-row {
+    padding: 12px 14px;
+    font-size: var(--t-mobile-body);
+  }
+
+  /* ── 批改作业 ── */
+  .teacher-app .t-grade-page {
+    gap: 10px;
+  }
+
+  .teacher-app .t-grade-command {
+    padding: 12px 14px;
+    gap: 10px;
+  }
+
+  .teacher-app .t-grade-command__stats {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    width: 100%;
+  }
+
+  .teacher-app .t-grade-stat {
+    min-width: 0 !important;
+    justify-content: center;
+    padding: 10px 12px;
+  }
+
+  .teacher-app .t-grade-stat__val,
+  .teacher-app .t-grade-stat strong {
+    font-size: 1.25rem;
+  }
+
+  .teacher-app .t-grade-stat__lbl,
+  .teacher-app .t-grade-stat span {
+    font-size: var(--t-mobile-meta);
+  }
+
+  .teacher-app .t-grade-command__toolbar {
+    width: 100%;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  .teacher-app .t-grade-command__filters {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 2px;
+  }
+
+  .teacher-app .t-grade-filter {
+    flex-shrink: 0;
+    min-height: 40px;
+    padding: 8px 14px;
+    font-size: var(--t-mobile-meta);
+  }
+
+  .teacher-app .t-grade-item {
+    padding: 14px 14px;
+  }
+
+  .teacher-app .t-grade-item__student {
+    font-size: var(--t-mobile-body);
+  }
+
+  .teacher-app .t-grade-item__meta {
+    font-size: var(--t-mobile-meta);
+  }
+
+  /* ── 任务管理 ── */
+  .teacher-app .t-tasks-page {
+    height: auto;
+    min-height: 0;
+  }
+
+  .teacher-app .t-tasks-workspace {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    min-width: 0;
+  }
+
+  .teacher-app .t-tasks-sidebar {
+    max-height: none;
+    height: auto;
+    flex-shrink: 0;
+    padding: 14px;
+    overflow: visible;
+  }
+
+  .teacher-app .t-tasks-sidebar__scroll {
+    flex: none;
+    min-height: 140px;
+    max-height: min(42vh, 280px);
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .teacher-app .t-tasks-sidebar__head h2 {
+    font-size: 1rem;
+  }
+
+  .teacher-app .t-tasks-sidebar__pager-btn {
+    width: 40px;
+    height: 40px;
+  }
+
+  .teacher-app .t-tasks-item {
+    padding: 12px 12px;
+  }
+
+  .teacher-app .t-tasks-item__title {
+    font-size: var(--t-mobile-body);
+  }
+
+  .teacher-app .t-tasks-item__meta,
+  .teacher-app .t-tasks-item__id {
+    font-size: var(--t-mobile-meta);
+  }
+
+  .teacher-app .t-tasks-panel {
+    min-width: 0;
+    border-radius: var(--t-mobile-card-radius);
+    overflow: hidden;
+  }
+
+  .teacher-app .t-tasks-panel__head-main h1 {
+    font-size: 1.25rem;
+  }
+
+  .teacher-app .t-tasks-panel__head,
+  .teacher-app .t-tasks-detail,
+  .teacher-app .t-tasks-form,
+  .teacher-app .t-tasks-panel__actions,
+  .teacher-app .t-tasks-ai {
+    padding-left: 14px !important;
+    padding-right: 14px !important;
+  }
+
+  .teacher-app .t-tasks-detail__desc {
+    font-size: var(--t-mobile-body);
+    line-height: 1.55;
+  }
+
+  .teacher-app .t-tasks-detail__title-row h2,
+  .teacher-app .t-tasks-detail h2 {
+    font-size: 1.05rem;
+  }
+
+  .teacher-app .t-tasks-hub {
+    padding: 14px !important;
+    gap: 10px;
+  }
+
+  .teacher-app .t-tasks-hub-card {
+    padding: 14px;
+    border-radius: 14px;
+  }
+
+  .teacher-app .t-tasks-hub-card__body strong {
+    font-size: 0.92rem;
+  }
+
+  .teacher-app .t-tasks-hub-card__body span {
+    font-size: 0.8rem;
+    line-height: 1.45;
+  }
+
+  /* ── 个人信息 ── */
+  .teacher-app .t-profile-page {
+    overflow-x: clip;
+    width: 100%;
+  }
+
+  .teacher-app .t-profile-shell {
+    gap: 12px;
+    width: 100%;
+  }
+
+  .teacher-app .t-profile-banner {
+    grid-template-columns: 1fr !important;
+    gap: 14px !important;
+    padding: 16px 14px !important;
+    text-align: left;
+    border-left: 3px solid #6366f1;
+    overflow: visible;
+  }
+
+  .teacher-app .t-profile-banner::before {
+    display: none;
+  }
+
+  .teacher-app .t-profile-banner__left {
+    justify-content: flex-start;
+    flex-direction: row;
+    align-items: center;
+  }
+
+  .teacher-app .t-profile-banner__intro h1 {
+    font-size: 1.25rem;
+  }
+
+  .teacher-app .t-profile-banner__meta {
+    font-size: 0.86rem;
+  }
+
+  .teacher-app .t-profile-banner__tags {
+    justify-content: flex-start;
+  }
+
+  .teacher-app .t-profile-banner__metrics {
+    display: grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+    width: 100%;
+    justify-self: stretch;
+  }
+
+  .teacher-app .t-profile-metric {
+    min-width: 0 !important;
+    padding: 12px 8px;
+  }
+
+  .teacher-app .t-profile-metric strong {
+    font-size: 1.25rem;
+  }
+
+  .teacher-app .t-profile-metric span {
+    font-size: 0.68rem;
+    line-height: 1.3;
+  }
+
+  .teacher-app .t-profile-banner__actions {
+    width: 100%;
+    justify-self: stretch;
+    flex-direction: column;
+  }
+
+  .teacher-app .t-profile-banner__actions .t-btn-solid,
+  .teacher-app .t-profile-banner__actions .t-btn-ghost {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .teacher-app .t-profile-card {
+    padding: 16px 14px;
+    min-height: auto !important;
+  }
+
+  .teacher-app .t-profile-card__head h2 {
+    font-size: 1rem;
+  }
+
+  .teacher-app .t-profile-pill,
+  .teacher-app .t-profile-readonly-chip {
+    font-size: var(--t-mobile-meta);
+    padding: 6px 12px;
+  }
+
+  .teacher-app .t-profile-scope {
+    padding: 12px 12px;
+    font-size: var(--t-mobile-body);
+  }
+
+  /* ── 底部导航（教师靛蓝） ── */
+  .mtb--indigo .mtb-inner {
+    padding: 6px 5px;
+    border-radius: 24px;
+  }
+
+  .mtb--indigo .mtb-item {
+    min-height: 56px;
+    gap: 3px;
+  }
+
+  .mtb--indigo .mtb-icon {
+    width: 34px;
+    height: 34px;
+    font-size: 1.08rem;
+    border-radius: 11px;
+  }
+
+  .mtb--indigo .mtb-label {
+    font-size: 0.72rem;
+    letter-spacing: 0;
+  }
+
+  /* ── Agent 对话 · 手机顶栏 ── */
+  .teacher-app .t-chat-mobile-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
+    padding: calc(12px + env(safe-area-inset-top, 0px)) 16px 12px;
+    background: rgba(255, 255, 255, 0.88);
+    backdrop-filter: blur(18px) saturate(1.3);
+    -webkit-backdrop-filter: blur(18px) saturate(1.3);
+    color: #1e1b4b;
+    border-bottom: 1px solid rgba(99, 102, 241, 0.1);
+    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.9) inset;
+  }
+
+  .teacher-app .t-chat-mobile-bar__brand {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    min-width: 0;
+  }
+
+  .teacher-app .t-chat-mobile-bar__icon {
+    width: 38px;
+    height: 38px;
+    display: grid;
+    place-items: center;
+    border-radius: 12px;
+    font-size: 0.95rem;
+    color: #fff;
+    background: linear-gradient(145deg, #4338ca, #6366f1);
+    box-shadow: 0 4px 14px rgba(99, 102, 241, 0.28);
+  }
+
+  .teacher-app .t-chat-mobile-bar__copy {
+    min-width: 0;
+  }
+
+  .teacher-app .t-chat-mobile-bar__title {
+    display: block;
+    font-family: var(--font-display, inherit);
+    font-size: 1.02rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+    color: #0f172a;
+  }
+
+  .teacher-app .t-chat-mobile-bar__sub {
+    display: block;
+    margin-top: 2px;
+    font-size: 0.72rem;
+    color: #64748b;
+    line-height: 1.2;
+  }
+
+  .teacher-app .t-chat-mobile-bar__live {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: #4338ca;
+    background: #eef2ff;
+    border: 1px solid rgba(99, 102, 241, 0.14);
+    flex-shrink: 0;
+  }
+
+  .teacher-app .t-chat-mobile-bar__dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #22c55e;
+    box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.2);
+    animation: tMobileLivePulse 2s ease-in-out infinite;
+  }
+
+  @keyframes tMobileLivePulse {
+    0%, 100% {
+      box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.2);
+      transform: scale(1);
+    }
+    50% {
+      box-shadow: 0 0 0 6px rgba(34, 197, 94, 0.08);
+      transform: scale(1.08);
+    }
+  }
+
+  /* ── Agent 欢迎卡片 ── */
+  .teacher-app .t-welcome-panel {
+    position: relative;
+    align-self: stretch;
+    width: 100%;
+    margin: 0 0 12px;
+    padding: 0;
+    text-align: left;
+    border-radius: 20px;
+    background: #fff;
+    border: 1px solid rgba(15, 23, 42, 0.06);
+    box-shadow:
+      0 1px 2px rgba(15, 23, 42, 0.04),
+      0 10px 32px rgba(15, 23, 42, 0.08);
+    overflow: hidden;
+    animation: tWelcomeIn 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  @keyframes tWelcomeIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .teacher-app .t-welcome-panel__hero {
+    position: relative;
+    height: 68px;
+    background: linear-gradient(125deg, #1e1b4b 0%, #3730a3 42%, #6366f1 100%);
+    overflow: hidden;
+  }
+
+  .teacher-app .t-welcome-panel__hero-glow {
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 80% 90% at 90% 10%, rgba(165, 180, 252, 0.35) 0%, transparent 55%),
+      radial-gradient(ellipse 60% 70% at 10% 100%, rgba(99, 102, 241, 0.25) 0%, transparent 50%);
+  }
+
+  .teacher-app .t-welcome-panel__body {
+    position: relative;
+    padding: 0 16px 18px;
+    margin-top: -26px;
+  }
+
+  .teacher-app .t-welcome-panel__icon {
+    display: grid;
+    place-items: center;
+    width: 52px;
+    height: 52px;
+    margin-bottom: 12px;
+    border-radius: 16px;
+    font-size: 20px;
+    color: #fff;
+    background: linear-gradient(145deg, #4338ca 0%, #6366f1 100%);
+    border: 3px solid #fff;
+    box-shadow: 0 8px 22px rgba(99, 102, 241, 0.28);
+  }
+
+  .teacher-app .t-welcome-panel__eyebrow {
+    margin: 0 0 6px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    color: #6366f1;
+  }
+
+  .teacher-app .t-welcome-panel__title {
+    margin: 0 0 8px;
+    font-family: var(--font-display, inherit);
+    font-size: 1.12rem;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 1.25;
+    color: #0f172a;
+  }
+
+  .teacher-app .t-welcome-panel__desc {
+    margin: 0 0 16px;
+    font-size: 0.86rem;
+    line-height: 1.65;
+    color: #64748b;
+  }
+
+  .teacher-app .t-welcome-panel__grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .teacher-app .t-welcome-cap {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+    width: 100%;
+    padding: 12px;
+    border-radius: 14px;
+    text-align: left;
+    font-family: inherit;
+    cursor: pointer;
+    color: inherit;
+    background: #f8fafc;
+    border: 1px solid rgba(15, 23, 42, 0.06);
+    transition: background 0.2s ease, border-color 0.2s ease, transform 0.15s ease;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .teacher-app .t-welcome-cap:nth-child(1) {
+    background: linear-gradient(160deg, #eef2ff 0%, #f8fafc 100%);
+  }
+
+  .teacher-app .t-welcome-cap:nth-child(2) {
+    background: linear-gradient(160deg, #f5f3ff 0%, #f8fafc 100%);
+  }
+
+  .teacher-app .t-welcome-cap:nth-child(3) {
+    background: linear-gradient(160deg, #fffbeb 0%, #f8fafc 100%);
+  }
+
+  .teacher-app .t-welcome-cap:nth-child(4) {
+    background: linear-gradient(160deg, #ecfdf5 0%, #f8fafc 100%);
+  }
+
+  .teacher-app .t-welcome-cap:active {
+    transform: scale(0.98);
+    border-color: rgba(99, 102, 241, 0.22);
+  }
+
+  .teacher-app .t-welcome-cap__icon {
+    flex-shrink: 0;
+    width: 32px;
+    height: 32px;
+    display: grid;
+    place-items: center;
+    border-radius: 10px;
+    font-size: 0.78rem;
+    color: #fff;
+    background: linear-gradient(135deg, #4f46e5, #6366f1);
+    box-shadow: 0 3px 10px rgba(99, 102, 241, 0.22);
+  }
+
+  .teacher-app .t-welcome-cap:nth-child(3) .t-welcome-cap__icon {
+    background: linear-gradient(135deg, #d97706, #f59e0b);
+    box-shadow: 0 3px 10px rgba(245, 158, 11, 0.22);
+  }
+
+  .teacher-app .t-welcome-cap:nth-child(4) .t-welcome-cap__icon {
+    background: linear-gradient(135deg, #059669, #10b981);
+    box-shadow: 0 3px 10px rgba(16, 185, 129, 0.22);
+  }
+
+  .teacher-app .t-welcome-cap__label {
+    font-size: 0.82rem;
+    font-weight: 700;
+    line-height: 1.3;
+    color: #1e293b;
+    letter-spacing: -0.01em;
+  }
+
+  /* ── Agent 对话 · 全屏与输入 ── */
+  .teacher-app .chat-page--teacher-shell {
+    padding: 0 !important;
+    padding-bottom: var(--mobile-nav-pad) !important;
+    background:
+      radial-gradient(ellipse 90% 50% at 50% -10%, rgba(99, 102, 241, 0.07) 0%, transparent 55%),
+      #f4f6fb;
+  }
+
+  .teacher-app .chat-page--teacher-shell .chat-container {
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    background: transparent;
+  }
+
+  .teacher-app .chat-page--teacher-shell .chat-messages {
+    padding: 16px var(--t-mobile-pad-x) 12px;
+    background: transparent;
+  }
+
+  .teacher-app .chat-page--teacher-shell .chat-input {
+    padding: 10px var(--t-mobile-pad-x) 12px;
+    background: rgba(255, 255, 255, 0.92);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-top: 1px solid rgba(15, 23, 42, 0.06);
+    box-shadow: 0 -6px 24px rgba(15, 23, 42, 0.05);
+  }
+
+  .teacher-app .s-mobile-chips--teacher {
+    gap: 8px;
+    padding: 10px var(--t-mobile-pad-x) 0;
+    background: rgba(255, 255, 255, 0.92);
+  }
+
+  .teacher-app .s-mobile-chips--teacher .s-mobile-chip {
+    padding: 8px 14px 8px 8px;
+    font-size: 0.8rem;
+    border-radius: 999px;
+    background: #fff;
+    border-color: rgba(99, 102, 241, 0.12);
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+  }
+
+  .teacher-app .s-mobile-chips--teacher .s-mobile-chip i {
+    width: 24px;
+    height: 24px;
+    font-size: 0.68rem;
+    border-radius: 7px;
+  }
+
+  .teacher-app .chat-page--teacher-shell .ai-message {
+    max-width: 100%;
+    padding: 14px 16px;
+    border-radius: 16px;
+    font-size: 0.92rem;
+    box-shadow: var(--t-mobile-card-shadow);
+  }
+
+  .teacher-app .chat-page--teacher-shell .ai-message .ai-text-prose {
+    font-size: 0.92rem;
+    line-height: 1.65;
+  }
+
+  .teacher-app .chat-page--teacher-shell .user-message {
+    font-size: 0.92rem;
+  }
+}

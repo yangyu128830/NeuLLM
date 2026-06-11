@@ -69,19 +69,28 @@
     <Transition name="toast-fade">
       <p v-if="toast" :class="['toast', toastOk ? 'ok' : 'fail']">{{ toast }}</p>
     </Transition>
+
+    <TeacherBottomNav :active="teacherNavActive" :pending-count="pendingCount" />
   </div>
 </template>
 
 <script setup>
 import { computed } from 'vue';
+import { useRoute } from 'vue-router';
 import { provideTeacherClassroom } from '../composables/useTeacherClassroom';
+import TeacherBottomNav from '../components/teacher/TeacherBottomNav.vue';
+import { teacherNavKeyFromRoute } from '../constants/teacherNav';
 import '../assets/teacher-shell.css';
 import '../assets/teacher-premium.css';
+import '../assets/teacher-mobile.css';
 
+const route = useRoute();
 const classroom = provideTeacherClassroom();
 const { toast, toastOk, logout, submissions } = classroom;
 
 const pendingCount = computed(
   () => submissions.value.filter((s) => s.status === 'SUBMITTED').length,
 );
+
+const teacherNavActive = computed(() => teacherNavKeyFromRoute(route.name));
 </script>

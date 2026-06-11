@@ -1,0 +1,309 @@
+/* 智学伴 · 手机端统一壳层（学生 + 教师） */
+:root {
+  --mobile-nav-height: 72px;
+  --mobile-nav-pad: calc(var(--mobile-nav-height) + env(safe-area-inset-bottom, 0px));
+  --mobile-ease: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* ── 浮动底部 Tab 栏 ── */
+.mtb {
+  display: none;
+}
+
+@media (max-width: 767px) {
+  .mtb--teal {
+    display: block;
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 400;
+    padding: 0 10px calc(8px + env(safe-area-inset-bottom, 0px));
+    pointer-events: none;
+  }
+}
+
+@media (max-width: 960px) {
+  .mtb--indigo {
+    display: block;
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 400;
+    padding: 0 10px calc(8px + env(safe-area-inset-bottom, 0px));
+    pointer-events: none;
+  }
+}
+
+@media (max-width: 767px), (max-width: 960px) {
+  .mtb-inner {
+    pointer-events: auto;
+    display: flex;
+    align-items: stretch;
+    justify-content: space-around;
+    gap: 2px;
+    padding: 5px 4px;
+    border-radius: 22px;
+    background: rgba(255, 255, 255, 0.92);
+    border: 1px solid rgba(15, 23, 42, 0.07);
+    box-shadow:
+      0 0 0 1px rgba(255, 255, 255, 0.85) inset,
+      0 -2px 20px rgba(15, 23, 42, 0.06),
+      0 12px 40px rgba(15, 23, 42, 0.14);
+    backdrop-filter: blur(24px) saturate(1.4);
+    -webkit-backdrop-filter: blur(24px) saturate(1.4);
+  }
+
+  .mtb-item {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    min-height: 52px;
+    padding: 4px 2px;
+    border-radius: 16px;
+    text-decoration: none;
+    color: #94a3b8;
+    -webkit-tap-highlight-color: transparent;
+    transition:
+      color 0.22s var(--mobile-ease),
+      background 0.22s var(--mobile-ease),
+      transform 0.15s var(--mobile-ease);
+  }
+
+  .mtb-item:active {
+    transform: scale(0.96);
+  }
+
+  .mtb-icon {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 30px;
+    height: 30px;
+    border-radius: 10px;
+    font-size: 1.02rem;
+    transition:
+      background 0.22s var(--mobile-ease),
+      color 0.22s var(--mobile-ease),
+      box-shadow 0.22s var(--mobile-ease);
+  }
+
+  .mtb-label {
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    line-height: 1.1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+  }
+
+  .mtb-badge {
+    position: absolute;
+    top: -3px;
+    right: -8px;
+    min-width: 16px;
+    height: 16px;
+    padding: 0 4px;
+    border-radius: 999px;
+    background: #ef4444;
+    color: #fff;
+    font-size: 0.56rem;
+    font-weight: 800;
+    font-style: normal;
+    line-height: 16px;
+    text-align: center;
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.95);
+  }
+
+  /* 学生端 · 青绿 */
+  .mtb--teal .mtb-item--active {
+    color: #0f766e;
+  }
+
+  .mtb--teal .mtb-item--active .mtb-icon {
+    color: #fff;
+    background: linear-gradient(145deg, #0f766e, #14b8a6);
+    box-shadow: 0 4px 12px rgba(13, 148, 136, 0.32);
+  }
+
+  /* 教师端 · 靛蓝 */
+  .mtb--indigo .mtb-item--active {
+    color: #4338ca;
+  }
+
+  .mtb--indigo .mtb-item--active .mtb-icon {
+    color: #fff;
+    background: linear-gradient(145deg, #4f46e5, #6366f1);
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.32);
+  }
+}
+
+/* ── 学生端页面 · 手机精致化 ── */
+@media (max-width: 767px) {
+  html.student-route body,
+  html.student-route #app {
+    background:
+      radial-gradient(ellipse 80% 50% at 50% -10%, rgba(20, 184, 166, 0.08) 0%, transparent 55%),
+      #eef2f6;
+  }
+
+  .student-page {
+    --layout-pad: 14px;
+    --radius-card: 18px;
+    padding-bottom: var(--mobile-nav-pad);
+  }
+
+  .student-page .content {
+    padding-top: 4px;
+  }
+
+  .messages-page .msg-card {
+    border-radius: 13px;
+  }
+
+  .assignments-page .task-card,
+  .profile-page .profile-card {
+    border-radius: 18px;
+    box-shadow:
+      0 1px 2px rgba(15, 23, 42, 0.04),
+      0 6px 20px rgba(15, 23, 42, 0.06);
+  }
+
+  .student-page .toast,
+  .assignments-page .toast,
+  .profile-page .toast {
+    bottom: calc(var(--mobile-nav-height) + 12px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+}
+
+/* ── 教师端 · 手机底栏模式 ── */
+@media (max-width: 960px) {
+  .teacher-app .teacher-main {
+    padding-bottom: var(--mobile-nav-pad);
+  }
+
+  .teacher-app .t-page {
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .teacher-app .t-page-head,
+  .teacher-app .t-hero,
+  .teacher-app .t-ws-head {
+    padding: calc(12px + env(safe-area-inset-top, 0px)) 14px 12px;
+    border-radius: 0;
+  }
+
+  .teacher-app .toast {
+    bottom: calc(var(--mobile-nav-height) + 12px + env(safe-area-inset-bottom, 0px));
+  }
+
+  /* 教师 Agent 对话 · 全屏沉浸 */
+  .teacher-app .chat-page--teacher-shell {
+    padding: 0;
+    padding-bottom: var(--mobile-nav-pad);
+    background: #f0fdfa;
+  }
+
+  .teacher-app .chat-page--teacher-shell .app-container {
+    gap: 0;
+  }
+
+  .teacher-app .t-agent-hero,
+  .teacher-app .t-agent-panel-head {
+    display: none;
+  }
+
+  .teacher-app .chat-page--teacher-shell .chat-container {
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    background: #fff;
+  }
+
+  .teacher-app .chat-page--teacher-shell .chat-messages {
+    padding: 16px 14px 12px;
+  }
+
+  .teacher-app .chat-page--teacher-shell .chat-input {
+    padding: 8px 12px 10px;
+    background: #fff;
+    border-top: none;
+  }
+
+  .teacher-app .chat-page--teacher-shell .chat-input-bar {
+    display: flex;
+    align-items: flex-end;
+    gap: 8px;
+    width: 100%;
+    padding: 6px 6px 6px 14px;
+    background: #f8fafc;
+    border: 1px solid rgba(99, 102, 241, 0.14);
+    border-radius: 20px;
+    box-shadow: 0 2px 12px rgba(15, 23, 42, 0.05);
+  }
+
+  .teacher-app .chat-page--teacher-shell .chat-input-bar:focus-within {
+    border-color: rgba(99, 102, 241, 0.35);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    background: #fff;
+  }
+
+  .teacher-app .chat-page--teacher-shell .chat-input textarea {
+    flex: 1;
+    min-height: 44px;
+    height: 44px;
+    padding: 10px 0;
+    border: none;
+    background: transparent;
+    font-size: 16px;
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  .teacher-app .chat-page--teacher-shell .chat-input textarea:focus {
+    box-shadow: none;
+    border: none;
+  }
+
+  .teacher-app .chat-page--teacher-shell .send-button {
+    min-width: 44px;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    border-radius: 12px;
+  }
+
+  .teacher-app .chat-page--teacher-shell .stop-button {
+    min-width: 44px;
+    height: 44px;
+    padding: 0 12px;
+    border-radius: 12px;
+  }
+
+  .teacher-app .chat-page--teacher-shell .send-button .send-btn-label {
+    display: none;
+  }
+
+  .teacher-app .s-mobile-chips--teacher {
+    display: flex;
+    flex-shrink: 0;
+    gap: 8px;
+    padding: 8px 12px 0;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    background: #fff;
+  }
+
+  .teacher-app .s-mobile-chips--teacher::-webkit-scrollbar {
+    display: none;
+  }
+}

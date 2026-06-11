@@ -3,58 +3,66 @@
   <div class="student-page classroom-theme messages-page">
     <StudentPageHeader
       title="消息中心"
-      subtitle="作业催交、新任务、批改结果与活动通知"
       icon="fa-bell"
       active="messages"
       :unread-count="unread"
       @logout="logout"
-    >
-      <template #actions>
-        <button type="button" class="btn-outline slot-btn" :disabled="loading" @click="load">
-          <i class="fas fa-rotate-right" :class="{ 'fa-spin': loading }"></i> 刷新
-        </button>
-        <button
-          v-if="unread > 0"
-          type="button"
-          class="btn-ghost slot-btn"
-          :disabled="markingAll"
-          @click="markAllRead"
-        >
-          <i class="fas fa-check-double"></i> 全部已读
-        </button>
-      </template>
-    </StudentPageHeader>
+    />
 
     <main class="content page-inner">
-      <div v-if="!loading && !loadError" class="toolbar">
-        <div class="toolbar__left">
-          <span v-if="unread > 0" class="unread-pill">
-            <i class="fas fa-circle"></i> {{ unread }} 条未读
-          </span>
-          <span v-else class="toolbar-muted">全部已读</span>
+      <div v-if="!loading && !loadError" class="msgs-sticky">
+        <div class="msgs-bar">
+          <div class="msgs-bar__status">
+            <span v-if="unread > 0" class="unread-pill">
+              {{ unread }} 未读
+            </span>
+            <span v-else class="toolbar-muted">全部已读</span>
+          </div>
+          <div class="msgs-bar__actions">
+            <button
+              type="button"
+              class="msgs-icon-btn"
+              :disabled="loading"
+              title="刷新消息"
+              aria-label="刷新消息"
+              @click="load"
+            >
+              <i class="fas fa-sync-alt" :class="{ 'fa-spin': loading }" aria-hidden="true"></i>
+            </button>
+            <button
+              v-if="unread > 0"
+              type="button"
+              class="msgs-icon-btn"
+              :disabled="markingAll"
+              title="全部标为已读"
+              aria-label="全部标为已读"
+              @click="markAllRead"
+            >
+              <i class="fas fa-check-double" aria-hidden="true"></i>
+            </button>
+          </div>
         </div>
-        <span v-if="accountLabel" class="toolbar-account">{{ accountLabel }}</span>
-      </div>
 
-      <div
-        v-if="!loading && !loadError && items.length"
-        class="type-filter"
-        role="tablist"
-        aria-label="消息分类筛选"
-      >
-        <button
-          v-for="opt in typeFilterOptions"
-          :key="opt.value"
-          type="button"
-          role="tab"
-          class="type-filter__btn"
-          :class="{ 'type-filter__btn--active': typeFilter === opt.value }"
-          :aria-selected="typeFilter === opt.value"
-          @click="typeFilter = opt.value"
+        <div
+          v-if="items.length"
+          class="type-filter"
+          role="tablist"
+          aria-label="消息分类筛选"
         >
-          {{ opt.label }}
-          <em v-if="opt.count > 0">{{ opt.count }}</em>
-        </button>
+          <button
+            v-for="opt in typeFilterOptions"
+            :key="opt.value"
+            type="button"
+            role="tab"
+            class="type-filter__btn"
+            :class="{ 'type-filter__btn--active': typeFilter === opt.value }"
+            :aria-selected="typeFilter === opt.value"
+            @click="typeFilter = opt.value"
+          >
+            {{ opt.label }}
+            <em v-if="opt.count > 0">{{ opt.count }}</em>
+          </button>
+        </div>
       </div>
 
       <div v-if="loading" class="state-box">
@@ -126,11 +134,7 @@
             </div>
             <h3 class="msg-title">{{ item.title }}</h3>
             <p class="msg-body">{{ item.content }}</p>
-            <span class="msg-action">
-              查看详情 <i class="fas fa-arrow-right"></i>
-            </span>
           </div>
-          <!-- 未读红点：仅 item.read === false 时显示 -->
           <span v-if="!item.read" class="msg-dot" aria-label="未读"></span>
         </li>
       </ul>
@@ -153,7 +157,7 @@ import { useRouter } from 'vue-router';
 import StudentPageHeader from '@/components/student/StudentPageHeader.vue';
 import notificationsApi from '@/services/notificationsApi';
 import authApi from '@/services/authApi';
-import { clearAuth, getUser } from '@/stores/auth';
+import { clearAuth } from '@/stores/auth';
 import { formatApiDateTime } from '@/utils/datetime';
 
 const router = useRouter();
@@ -185,13 +189,6 @@ const filteredItems = computed(() => {
   const opt = TYPE_FILTER_OPTIONS.find((o) => o.value === typeFilter.value);
   if (!opt?.types) return items.value;
   return items.value.filter((it) => opt.types.includes(it.type));
-});
-
-const accountLabel = computed(() => {
-  const u = getUser();
-  if (!u) return '';
-  const name = u.displayName || u.username || '';
-  return name ? `${name} · ${u.username}` : u.username;
 });
 
 /** 消息类型 → Font Awesome 图标（与后端 NotificationType 常量对应） */
@@ -405,79 +402,118 @@ h1 {
 
 .content {
   flex: 1;
-  padding-top: 20px;
-  padding-bottom: 32px;
+  padding-top: 12px;
+  padding-bottom: 24px;
 }
 
-.toolbar {
+.msgs-sticky {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  margin-bottom: 10px;
+  padding-bottom: 2px;
+  background: var(--page-bg);
+}
+
+.msgs-bar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 12px;
-  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 8px;
 }
 
-.toolbar__left {
+.msgs-bar__status {
+  min-width: 0;
+}
+
+.msgs-bar__actions {
   display: flex;
   align-items: center;
-  gap: 10px;
-  flex-wrap: wrap;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.msgs-icon-btn {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: #fff;
+  color: var(--accent-dark);
+  font-size: 0.82rem;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.msgs-icon-btn i {
+  font-size: 0.82rem;
+  line-height: 1;
+  pointer-events: none;
+}
+
+.msgs-icon-btn:hover:not(:disabled) {
+  background: #f0fdfa;
+  border-color: rgba(20, 184, 166, 0.28);
+  color: var(--accent-dark);
+}
+
+.msgs-icon-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .toolbar-muted {
-  font-size: 0.85rem;
-  color: var(--muted);
-}
-
-.toolbar-account {
   font-size: 0.82rem;
-  color: var(--accent-dark);
-  font-weight: 600;
+  color: var(--muted);
 }
 
 .unread-pill {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  font-size: 0.82rem;
+  font-size: 0.78rem;
   font-weight: 700;
   color: #b45309;
   background: #fffbeb;
-  padding: 4px 10px;
+  padding: 3px 9px;
   border-radius: 999px;
   border: 1px solid #fde68a;
 }
 
-.unread-pill i {
-  font-size: 0.45rem;
-}
-
 .type-filter {
   display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-bottom: 14px;
-  padding: 10px 12px;
-  background: #fff;
-  border: 1px solid var(--border);
-  border-radius: 8px;
+  flex-wrap: nowrap;
+  gap: 6px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  padding: 2px 0 4px;
+}
+
+.type-filter::-webkit-scrollbar {
+  display: none;
 }
 
 .type-filter__btn {
+  flex-shrink: 0;
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 6px 12px;
+  gap: 5px;
+  padding: 5px 11px;
   border-radius: 999px;
   border: 1px solid var(--border);
-  background: #f8fafc;
+  background: #fff;
   color: var(--muted);
-  font-size: 0.8rem;
+  font-size: 0.76rem;
   font-weight: 600;
   cursor: pointer;
   font-family: inherit;
   transition: background 0.15s, border-color 0.15s, color 0.15s;
+  white-space: nowrap;
 }
 
 .type-filter__btn:hover:not(.type-filter__btn--active) {
@@ -493,16 +529,16 @@ h1 {
 }
 
 .type-filter__btn em {
-  min-width: 18px;
-  height: 18px;
-  padding: 0 5px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
   border-radius: 999px;
-  background: rgba(15, 23, 42, 0.08);
+  background: rgba(15, 23, 42, 0.07);
   color: var(--muted);
-  font-size: 0.68rem;
+  font-size: 0.62rem;
   font-weight: 700;
   font-style: normal;
-  line-height: 18px;
+  line-height: 16px;
   text-align: center;
 }
 
@@ -637,32 +673,36 @@ h1 {
   gap: 14px;
   background: #fff;
   border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 16px 18px;
+  border-radius: 14px;
+  padding: 14px 16px;
   cursor: pointer;
-  transition: box-shadow 0.2s, border-color 0.2s, transform 0.15s;
+  transition: box-shadow 0.2s, border-color 0.2s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.msg-card:active {
+  background: #f8fafc;
 }
 
 .msg-card:hover {
   border-color: rgba(20, 184, 166, 0.35);
   box-shadow: var(--shadow-sm);
-  transform: translateY(-1px);
 }
 
 .msg-card--unread {
   border-left: 3px solid var(--accent-dark);
-  background: linear-gradient(90deg, rgba(20, 184, 166, 0.05) 0%, #fff 120px);
+  background: linear-gradient(90deg, rgba(20, 184, 166, 0.04) 0%, #fff 80px);
 }
 
 .msg-card__icon {
   flex-shrink: 0;
-  width: 44px;
-  height: 44px;
-  border-radius: 10px;
+  width: 42px;
+  height: 42px;
+  border-radius: 11px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.05rem;
+  font-size: 0.96rem;
 }
 
 .tone-remind {
@@ -700,13 +740,13 @@ h1 {
   justify-content: space-between;
   align-items: center;
   gap: 8px;
-  margin-bottom: 4px;
+  margin-bottom: 5px;
 }
 
 .msg-type {
-  font-size: 0.7rem;
+  font-size: 0.72rem;
   font-weight: 700;
-  padding: 2px 8px;
+  padding: 2px 9px;
   border-radius: 999px;
 }
 
@@ -717,50 +757,38 @@ h1 {
 .msg-type.tone-system { background: #f1f5f9; color: #64748b; }
 
 .msg-time {
-  font-size: 0.75rem;
+  font-size: 0.76rem;
   color: #94a3b8;
   flex-shrink: 0;
 }
 
 .msg-title {
-  margin: 0 0 6px;
-  font-size: 0.98rem;
+  margin: 0 0 5px;
+  font-size: 0.96rem;
   font-weight: 700;
   color: var(--text);
   line-height: 1.4;
-}
-
-.msg-body {
-  margin: 0;
-  font-size: 0.875rem;
-  color: var(--muted);
-  line-height: 1.55;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
 
-.msg-action {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  margin-top: 10px;
-  font-size: 0.78rem;
-  font-weight: 600;
-  color: var(--accent-dark);
-  opacity: 0;
-  transition: opacity 0.2s;
-}
-
-.msg-card:hover .msg-action {
-  opacity: 1;
+.msg-body {
+  margin: 0;
+  font-size: 0.86rem;
+  color: var(--muted);
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .msg-dot {
   position: absolute;
-  top: 16px;
-  right: 16px;
+  top: 14px;
+  right: 14px;
   width: 8px;
   height: 8px;
   border-radius: 50%;
@@ -768,39 +796,74 @@ h1 {
   box-shadow: 0 0 0 2px #fff;
 }
 
-@media (max-width: 640px) {
-  .toolbar {
-    flex-direction: column;
-    align-items: flex-start;
+@media (max-width: 767px) {
+  .content {
+    padding-top: 8px;
   }
 
-  .type-filter {
-    gap: 6px;
-    padding: 8px 10px;
+  .msgs-sticky {
+    margin-bottom: 8px;
+  }
+
+  .msgs-bar {
+    margin-bottom: 6px;
+  }
+
+  .msgs-icon-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 9px;
+    font-size: 0.78rem;
+  }
+
+  .unread-pill {
+    font-size: 0.72rem;
+    padding: 2px 8px;
   }
 
   .type-filter__btn {
-    padding: 7px 10px;
-    font-size: 0.76rem;
+    padding: 4px 10px;
+    font-size: 0.72rem;
+  }
+
+  .msg-list {
+    gap: 8px;
   }
 
   .msg-card {
-    padding: 14px;
+    padding: 13px 14px;
     gap: 12px;
+    border-radius: 13px;
   }
 
-  .msg-card__head {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 4px;
+  .msg-card__icon {
+    width: 38px;
+    height: 38px;
+    font-size: 0.9rem;
+    border-radius: 10px;
+  }
+
+  .msg-type {
+    font-size: 0.7rem;
   }
 
   .msg-time {
-    align-self: flex-start;
+    font-size: 0.72rem;
   }
 
-  .msg-action {
-    opacity: 1;
+  .msg-title {
+    font-size: 0.92rem;
+  }
+
+  .msg-body {
+    font-size: 0.82rem;
+  }
+
+  .msg-dot {
+    top: 13px;
+    right: 13px;
+    width: 7px;
+    height: 7px;
   }
 }
 </style>
