@@ -133,7 +133,11 @@ function applyRouteShell(to) {
     }
 }
 
-router.beforeEach(async (to) => {
+router.beforeEach(async (to, from) => {
+    if (isPublicRoute(to) && isPublicRoute(from)) {
+        window.scrollTo(0, 0);
+    }
+
     if (isPublicRoute(to)) {
         applyRouteShell(to);
         if (getToken()) {
@@ -174,10 +178,5 @@ router.beforeEach(async (to) => {
     return true;
 });
 
-router.afterEach((to) => {
-    if (isPublicRoute(to)) {
-        window.scrollTo(0, 0);
-    }
-});
 
 export default router;

@@ -150,7 +150,6 @@ import { reactive, ref, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import authApi from '../services/authApi';
 import { setAuth, getRememberedLogin, saveRememberedLogin } from '../stores/auth';
-import '../assets/auth-shell.css';
 
 const route = useRoute();
 const router = useRouter();

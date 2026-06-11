@@ -88,7 +88,6 @@ import { reactive, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import authApi from '../services/authApi';
 import { setAuth } from '../stores/auth';
-import '../assets/auth-shell.css';
 
 const route = useRoute();
 const router = useRouter();

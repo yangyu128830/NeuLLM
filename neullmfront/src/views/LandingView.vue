@@ -216,7 +216,6 @@
 
 <script setup>
 
-import '../assets/landing-shell.css';
 
 
 

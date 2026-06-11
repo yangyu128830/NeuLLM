@@ -57,35 +57,43 @@ html.public-route #app {
   50% { transform: translate(-12px, 16px) scale(1.04); }
 }
 
-.public-page-view {
+.public-page-stage {
   position: relative;
   z-index: 1;
   min-height: 100vh;
 }
 
+.public-page-view {
+  position: relative;
+  min-height: 100vh;
+}
+
+/* 交叉淡入：避免 out-in 中间空白，背景与顶栏保持不动 */
 .public-page-enter-active {
-  transition: opacity 0.58s var(--zx-ease-out), transform 0.58s var(--zx-ease-out);
-  will-change: opacity, transform;
+  z-index: 1;
+  transition: opacity 0.32s var(--zx-ease-out);
 }
 
 .public-page-leave-active {
-  transition: opacity 0.38s var(--zx-ease-out), transform 0.38s var(--zx-ease-out);
-  will-change: opacity, transform;
+  z-index: 0;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  pointer-events: none;
+  transition: opacity 0.22s var(--zx-ease-out);
 }
 
-.public-page-enter-from {
-  opacity: 0;
-  transform: translate3d(0, 14px, 0);
-}
-
+.public-page-enter-from,
 .public-page-leave-to {
   opacity: 0;
-  transform: translate3d(0, -8px, 0);
 }
 
-.public-page-enter-to,
-.public-page-leave-from {
-  will-change: auto;
+/* 离场时暂停首页浮动动画，减轻 GPU 压力 */
+.public-page-leave-active .landing-float-card,
+.public-page-leave-active .landing-badge-dot {
+  animation: none;
 }
 
 /* 共享顶栏 */
@@ -304,11 +312,6 @@ html.public-route #app {
   .public-page-enter-active,
   .public-page-leave-active {
     transition-duration: 0.01ms;
-  }
-
-  .public-page-enter-from,
-  .public-page-leave-to {
-    transform: none;
   }
 }
 
