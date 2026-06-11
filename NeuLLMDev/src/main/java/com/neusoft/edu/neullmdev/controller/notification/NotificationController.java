@@ -2,6 +2,7 @@ package com.neusoft.edu.neullmdev.controller.notification;
 
 import com.neusoft.edu.neullmdev.model.api.ApiResponse;
 import com.neusoft.edu.neullmdev.service.notification.NotificationService;
+import com.neusoft.edu.neullmdev.service.notification.NotificationSummaryService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -17,15 +18,24 @@ import java.util.Map;
 public class NotificationController {
 
     private final NotificationService notificationService;
+    private final NotificationSummaryService notificationSummaryService;
 
-    public NotificationController(NotificationService notificationService) {
+    public NotificationController(NotificationService notificationService,
+                                  NotificationSummaryService notificationSummaryService) {
         this.notificationService = notificationService;
+        this.notificationSummaryService = notificationSummaryService;
     }
 
     @GetMapping
     public ApiResponse<List<Map<String, Object>>> list(
             @RequestParam(defaultValue = "50") int limit) {
         return ApiResponse.success(notificationService.listForCurrentUser(limit));
+    }
+
+    @GetMapping("/summary")
+    public ApiResponse<Map<String, Object>> summary(
+            @RequestParam(defaultValue = "20") int limit) {
+        return ApiResponse.success(notificationSummaryService.summarizeForCurrentUser(limit));
     }
 
     @GetMapping("/unread-count")

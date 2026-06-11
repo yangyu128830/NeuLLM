@@ -37,15 +37,15 @@ public class TaskDraftAssistService {
             """;
 
     private final KimiChatService kimiChatService;
-    private final ClassroomService classroomService;
+    private final ClassroomAccessSupport access;
 
-    public TaskDraftAssistService(KimiChatService kimiChatService, ClassroomService classroomService) {
+    public TaskDraftAssistService(KimiChatService kimiChatService, ClassroomAccessSupport access) {
         this.kimiChatService = kimiChatService;
-        this.classroomService = classroomService;
+        this.access = access;
     }
 
     public Map<String, Object> assist(TaskDraftAssistRequest request) {
-        classroomService.requireTeacher();
+        access.requireTeacher();
         if (request == null || request.getPrompt() == null || request.getPrompt().isBlank()) {
             throw new IllegalArgumentException("请描述你想布置的任务（例如课程、周次、主题与子任务数量）");
         }

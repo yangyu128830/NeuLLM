@@ -141,6 +141,15 @@
           >
             需跟进<em>{{ followUpCount }}</em>
           </button>
+          <button
+            v-if="remindPendingCount"
+            type="button"
+            class="t-filter-tab"
+            :class="{ 't-filter-tab--on': rowFilter === 'remind' }"
+            @click="rowFilter = 'remind'"
+          >
+            待提交<em>{{ remindPendingCount }}</em>
+          </button>
         </div>
         <div class="t-prog-search">
           <i class="fas fa-search"></i>
@@ -445,6 +454,8 @@ const route = useRoute();
 const {
   tasks,
   tasksBySubjectFilter,
+  subjectFilter,
+  setSubjectFilter,
   currentTaskId,
   dashboard,
   submissions,
@@ -475,6 +486,17 @@ function isFollowUp(row) {
   const p = studentProgressPercent(row);
   return p > 0 && p < 100;
 }
+
+function isRemindPending(row) {
+  return (row.cells || []).some(
+    (c) => c.state === 'AVAILABLE' || c.state === 'NEEDS_REVISION',
+  );
+}
+
+const remindPendingCount = computed(() => {
+  const rows = dashboard.value?.rows || [];
+  return rows.filter(isRemindPending).length;
+});
 
 const followUpCount = computed(() => {
   const rows = dashboard.value?.rows || [];
@@ -524,6 +546,8 @@ const filteredRows = computed(() => {
   let rows = dashboard.value?.rows || [];
   if (rowFilter.value === 'follow') {
     rows = rows.filter(isFollowUp);
+  } else if (rowFilter.value === 'remind') {
+    rows = rows.filter(isRemindPending);
   }
   const q = searchQuery.value.trim().toLowerCase();
   if (q) {
@@ -699,33 +723,78 @@ async function handleRemind(row, subTaskId = null) {
   }
 }
 
+function applyProgressQuery() {
+  const filter = route.query.filter;
+  if (filter === 'remind') rowFilter.value = 'remind';
+  else if (filter === 'follow') rowFilter.value = 'follow';
+  else if (filter === 'all') rowFilter.value = 'all';
+
+  if (route.query.view === 'matrix') viewMode.value = 'matrix';
+  else if (route.query.view === 'lane') viewMode.value = 'lane';
+}
+
 function applyStudentFocus() {
   const sid = route.query.student;
   if (!sid) return;
   searchQuery.value = String(sid);
-  rowFilter.value = 'all';
-  if (route.query.view === 'matrix') {
-    viewMode.value = 'matrix';
-  } else {
-    viewMode.value = 'lane';
-  }
+  if (!route.query.filter) rowFilter.value = 'all';
+  applyProgressQuery();
   nextTick(() => {
     const el = document.getElementById(`student-${sid}`);
     el?.scrollIntoView({ behavior: 'smooth', block: 'center' });
   });
 }
 
-watch(
-  () => [route.query.student, dashboard.value?.rows?.length],
-  () => {
+let progressDeepLinkFocusing = false;
+
+async function applyProgressDeepLink() {
+  if (progressDeepLinkFocusing) return;
+  const taskId = route.query.taskId ? String(route.query.taskId) : '';
+  if (!taskId && !route.query.student && !route.query.filter && !route.query.view) return;
+
+  progressDeepLinkFocusing = true;
+  try {
+    applyProgressQuery();
+
+    if (taskId && tasks.value.length) {
+      const task = tasks.value.find((t) => t.taskId === taskId);
+      if (task) {
+        const subj = (task.subject || '').trim() || '__unset__';
+        if (subjectFilter.value !== 'all' && subjectFilter.value !== subj) {
+          setSubjectFilter('all');
+        }
+        if (currentTaskId.value !== taskId) {
+          currentTaskId.value = taskId;
+          await refreshDashboard();
+        }
+      }
+    }
+
     if (route.query.student && dashboard.value?.rows?.length) {
       applyStudentFocus();
     }
+  } finally {
+    progressDeepLinkFocusing = false;
+  }
+}
+
+watch(
+  () => [
+    route.query.taskId,
+    route.query.student,
+    route.query.filter,
+    route.query.view,
+    tasks.value.length,
+    currentTaskId.value,
+    dashboard.value?.rows?.length,
+  ],
+  () => {
+    void applyProgressDeepLink();
   },
 );
 
 onMounted(async () => {
-  if (currentTaskId.value) await refreshDashboard();
-  applyStudentFocus();
+  if (currentTaskId.value && !route.query.taskId) await refreshDashboard();
+  await applyProgressDeepLink();
 });
 </script>

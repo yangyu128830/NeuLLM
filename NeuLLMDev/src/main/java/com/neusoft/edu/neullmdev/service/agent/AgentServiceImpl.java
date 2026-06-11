@@ -7,7 +7,7 @@ import com.neusoft.edu.neullmdev.dto.chat.ChatStreamRequest;
 import com.neusoft.edu.neullmdev.model.agent.FunctionCall;
 import com.neusoft.edu.neullmdev.model.mcp.McpCallContext;
 import com.neusoft.edu.neullmdev.model.mcp.ToolResult;
-import com.neusoft.edu.neullmdev.service.classroom.ClassroomService;
+import com.neusoft.edu.neullmdev.service.classroom.ClassroomTaskService;
 import com.neusoft.edu.neullmdev.service.classroom.ClassroomToolResponseFactory;
 import com.neusoft.edu.neullmdev.service.llm.FinalAnswerService;
 import com.neusoft.edu.neullmdev.service.llm.KimiChatService;
@@ -39,7 +39,7 @@ public class AgentServiceImpl implements AgentService {
     private final ProcessJSONStringTools processJSONStringTools;
     private final IntentReconciler intentReconciler;
     private final ObjectMapper objectMapper;
-    private final ClassroomService classroomService;
+    private final ClassroomTaskService taskService;
 
     public AgentServiceImpl(KimiChatService kimiChatService,
                             McpService mcpService,
@@ -47,14 +47,14 @@ public class AgentServiceImpl implements AgentService {
                             ProcessJSONStringTools processJSONStringTools,
                             IntentReconciler intentReconciler,
                             ObjectMapper objectMapper,
-                            ClassroomService classroomService) {
+                            ClassroomTaskService taskService) {
         this.kimiChatService = kimiChatService;
         this.mcpService = mcpService;
         this.finalAnswer = finalAnswer;
         this.processJSONStringTools = processJSONStringTools;
         this.intentReconciler = intentReconciler;
         this.objectMapper = objectMapper;
-        this.classroomService = classroomService;
+        this.taskService = taskService;
     }
 
     @Override
@@ -202,7 +202,7 @@ public class AgentServiceImpl implements AgentService {
         String taskId = paramString(params, "taskId");
         String title = taskId;
         try {
-            title = String.valueOf(classroomService.taskDetail(taskId).get("title"));
+            title = taskService.taskDetail(taskId).title();
         } catch (Exception ignored) {
             // 使用 taskId 作为标题占位
         }

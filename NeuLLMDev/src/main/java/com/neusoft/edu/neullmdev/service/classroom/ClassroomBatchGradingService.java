@@ -1,5 +1,6 @@
 package com.neusoft.edu.neullmdev.service.classroom;
 
+import com.neusoft.edu.neullmdev.dto.classroom.response.TaskSubmissionResponse;
 import com.neusoft.edu.neullmdev.model.classroom.SubmissionStatus;
 import org.springframework.stereotype.Service;
 
@@ -13,31 +14,34 @@ public class ClassroomBatchGradingService {
 
     private static final int MAX_BATCH = 8;
 
-    private final ClassroomService classroomService;
+    private final ClassroomAccessSupport access;
+    private final ClassroomSubmissionService submissionService;
     private final SubmissionGradingAssistService gradingAssistService;
 
-    public ClassroomBatchGradingService(ClassroomService classroomService,
-                                          SubmissionGradingAssistService gradingAssistService) {
-        this.classroomService = classroomService;
+    public ClassroomBatchGradingService(ClassroomAccessSupport access,
+                                        ClassroomSubmissionService submissionService,
+                                        SubmissionGradingAssistService gradingAssistService) {
+        this.access = access;
+        this.submissionService = submissionService;
         this.gradingAssistService = gradingAssistService;
     }
 
     public Map<String, Object> batchAssist(String taskId) {
-        classroomService.requireTeacher();
-        List<Map<String, Object>> all = classroomService.listSubmissions(taskId);
-        List<Map<String, Object>> pending = all.stream()
-                .filter(s -> SubmissionStatus.SUBMITTED.name().equals(String.valueOf(s.get("status"))))
+        access.requireTeacher();
+        List<TaskSubmissionResponse> all = submissionService.listSubmissions(taskId);
+        List<TaskSubmissionResponse> pending = all.stream()
+                .filter(s -> SubmissionStatus.SUBMITTED.name().equals(s.status()))
                 .toList();
         List<Map<String, Object>> results = new ArrayList<>();
         int limit = Math.min(MAX_BATCH, pending.size());
         for (int i = 0; i < limit; i++) {
-            Map<String, Object> sub = pending.get(i);
-            String submissionId = String.valueOf(sub.get("submissionId"));
+            TaskSubmissionResponse sub = pending.get(i);
+            String submissionId = sub.submissionId();
             try {
                 Map<String, Object> assist = gradingAssistService.assist(submissionId);
                 Map<String, Object> row = new LinkedHashMap<>(assist);
-                row.put("studentName", sub.get("studentName"));
-                row.put("studentNo", sub.get("studentNo"));
+                row.put("studentName", sub.studentName());
+                row.put("studentNo", sub.studentNo());
                 results.add(row);
             } catch (Exception e) {
                 Map<String, Object> err = new LinkedHashMap<>();

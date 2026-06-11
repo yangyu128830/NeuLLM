@@ -4,7 +4,10 @@ import com.neusoft.edu.neullmdev.auth.AuthContext;
 import com.neusoft.edu.neullmdev.auth.AuthUser;
 import com.neusoft.edu.neullmdev.auth.UserRole;
 import com.neusoft.edu.neullmdev.model.agent.FunctionCall;
-import com.neusoft.edu.neullmdev.service.classroom.ClassroomService;
+import com.neusoft.edu.neullmdev.dto.classroom.response.ClassroomTaskResponse;
+import com.neusoft.edu.neullmdev.dto.classroom.response.TaskSubmissionResponse;
+import com.neusoft.edu.neullmdev.service.classroom.ClassroomSubmissionService;
+import com.neusoft.edu.neullmdev.service.classroom.ClassroomTaskService;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -39,10 +42,13 @@ public class ClassroomIntentOverride {
             "batch_assist_grade_submissions"
     );
 
-    private final ClassroomService classroomService;
+    private final ClassroomTaskService taskService;
+    private final ClassroomSubmissionService submissionService;
 
-    public ClassroomIntentOverride(ClassroomService classroomService) {
-        this.classroomService = classroomService;
+    public ClassroomIntentOverride(ClassroomTaskService taskService,
+                                   ClassroomSubmissionService submissionService) {
+        this.taskService = taskService;
+        this.submissionService = submissionService;
     }
 
     public FunctionCall reconcile(String userInput, FunctionCall parsed, boolean teacherMode) {
@@ -200,11 +206,11 @@ public class ClassroomIntentOverride {
     private Optional<String> latestSubmissionId(AuthUser authUser) {
         return latestTaskId(authUser).flatMap(taskId -> AuthContext.callWith(authUser, () -> {
             try {
-                List<Map<String, Object>> subs = classroomService.listSubmissions(taskId);
-                for (Map<String, Object> s : subs) {
-                    Object id = s.get("submissionId");
+                List<TaskSubmissionResponse> subs = submissionService.listSubmissions(taskId);
+                for (TaskSubmissionResponse s : subs) {
+                    String id = s.submissionId();
                     if (id != null) {
-                        return Optional.of(String.valueOf(id));
+                        return Optional.of(id);
                     }
                 }
             } catch (Exception ignored) {
@@ -217,13 +223,13 @@ public class ClassroomIntentOverride {
     private Optional<String> latestTaskId(AuthUser authUser) {
         return AuthContext.callWith(authUser, () -> {
             try {
-                List<Map<String, Object>> tasks = classroomService.listTasksForTeacher();
+                List<ClassroomTaskResponse> tasks = taskService.listTasksForTeacher();
                 String published = null;
                 String any = null;
-                for (Map<String, Object> t : tasks) {
-                    String id = String.valueOf(t.get("taskId"));
+                for (ClassroomTaskResponse t : tasks) {
+                    String id = t.taskId();
                     any = id;
-                    if (Boolean.TRUE.equals(t.get("published"))) {
+                    if (t.published()) {
                         published = id;
                     }
                 }

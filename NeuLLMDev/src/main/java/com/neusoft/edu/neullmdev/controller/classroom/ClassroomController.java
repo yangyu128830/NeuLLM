@@ -6,12 +6,23 @@ import com.neusoft.edu.neullmdev.dto.classroom.ParseTaskTextRequest;
 import com.neusoft.edu.neullmdev.dto.classroom.SendStudentReminderRequest;
 import com.neusoft.edu.neullmdev.dto.classroom.UpsertStudentRequest;
 import com.neusoft.edu.neullmdev.dto.classroom.TaskDraftAssistRequest;
+import com.neusoft.edu.neullmdev.dto.classroom.response.ClassroomTaskResponse;
+import com.neusoft.edu.neullmdev.dto.classroom.response.StudentAssignmentResponse;
+import com.neusoft.edu.neullmdev.dto.classroom.response.StudentResponse;
+import com.neusoft.edu.neullmdev.dto.classroom.response.StudentScopeOptionsResponse;
+import com.neusoft.edu.neullmdev.dto.classroom.response.SubmissionResponse;
+import com.neusoft.edu.neullmdev.dto.classroom.response.TaskSubmissionResponse;
 import com.neusoft.edu.neullmdev.model.api.ApiResponse;
 import com.neusoft.edu.neullmdev.model.classroom.ParsedTaskDocument;
 import com.neusoft.edu.neullmdev.model.classroom.ProgressDashboard;
+import com.neusoft.edu.neullmdev.service.classroom.AssignmentSummaryService;
+import com.neusoft.edu.neullmdev.service.classroom.TeacherClassInsightSummaryService;
+import com.neusoft.edu.neullmdev.service.classroom.TeacherSubmissionsSummaryService;
 import com.neusoft.edu.neullmdev.service.classroom.ClassroomDashboardService;
 import com.neusoft.edu.neullmdev.service.classroom.ClassroomReminderService;
-import com.neusoft.edu.neullmdev.service.classroom.ClassroomService;
+import com.neusoft.edu.neullmdev.service.classroom.ClassroomStudentService;
+import com.neusoft.edu.neullmdev.service.classroom.ClassroomSubmissionService;
+import com.neusoft.edu.neullmdev.service.classroom.ClassroomTaskService;
 import com.neusoft.edu.neullmdev.service.classroom.ClassroomTaskTemplateService;
 import com.neusoft.edu.neullmdev.service.classroom.SubmissionGradingAssistService;
 import com.neusoft.edu.neullmdev.service.classroom.TaskDocumentParserService;
@@ -35,86 +46,101 @@ import java.util.Map;
 @RequestMapping("/api/classroom")
 public class ClassroomController {
 
-    private final ClassroomService classroomService;
+    private final ClassroomStudentService studentService;
+    private final ClassroomTaskService taskService;
+    private final ClassroomSubmissionService submissionService;
     private final ClassroomDashboardService dashboardService;
     private final SubmissionGradingAssistService gradingAssistService;
     private final TaskDocumentParserService taskDocumentParserService;
     private final ClassroomTaskTemplateService taskTemplateService;
     private final ClassroomReminderService reminderService;
     private final TaskDraftAssistService taskDraftAssistService;
+    private final AssignmentSummaryService assignmentSummaryService;
+    private final TeacherSubmissionsSummaryService teacherSubmissionsSummaryService;
+    private final TeacherClassInsightSummaryService teacherClassInsightSummaryService;
 
-    public ClassroomController(ClassroomService classroomService,
+    public ClassroomController(ClassroomStudentService studentService,
+                               ClassroomTaskService taskService,
+                               ClassroomSubmissionService submissionService,
                                ClassroomDashboardService dashboardService,
                                SubmissionGradingAssistService gradingAssistService,
                                TaskDocumentParserService taskDocumentParserService,
                                ClassroomTaskTemplateService taskTemplateService,
                                ClassroomReminderService reminderService,
-                               TaskDraftAssistService taskDraftAssistService) {
-        this.classroomService = classroomService;
+                               TaskDraftAssistService taskDraftAssistService,
+                               AssignmentSummaryService assignmentSummaryService,
+                               TeacherSubmissionsSummaryService teacherSubmissionsSummaryService,
+                               TeacherClassInsightSummaryService teacherClassInsightSummaryService) {
+        this.studentService = studentService;
+        this.taskService = taskService;
+        this.submissionService = submissionService;
         this.dashboardService = dashboardService;
         this.gradingAssistService = gradingAssistService;
         this.taskDocumentParserService = taskDocumentParserService;
         this.taskTemplateService = taskTemplateService;
         this.reminderService = reminderService;
         this.taskDraftAssistService = taskDraftAssistService;
+        this.assignmentSummaryService = assignmentSummaryService;
+        this.teacherSubmissionsSummaryService = teacherSubmissionsSummaryService;
+        this.teacherClassInsightSummaryService = teacherClassInsightSummaryService;
     }
 
     @GetMapping("/students")
-    public ApiResponse<List<Map<String, Object>>> students() {
-        return ApiResponse.success(classroomService.listStudents(null));
+    public ApiResponse<List<StudentResponse>> students() {
+        return ApiResponse.success(studentService.listStudents(null));
     }
 
     @GetMapping("/students/scope-options")
-    public ApiResponse<Map<String, Object>> studentScopeOptions() {
-        return ApiResponse.success(classroomService.listStudentScopeOptions());
+    public ApiResponse<StudentScopeOptionsResponse> studentScopeOptions() {
+        return ApiResponse.success(studentService.listStudentScopeOptions());
     }
 
     @GetMapping("/students/{studentUserId}")
-    public ApiResponse<Map<String, Object>> getStudent(@PathVariable Long studentUserId) {
-        return ApiResponse.success(classroomService.getStudent(studentUserId));
+    public ApiResponse<StudentResponse> getStudent(@PathVariable Long studentUserId) {
+        return ApiResponse.success(studentService.getStudent(studentUserId));
     }
 
     @PostMapping("/students")
-    public ApiResponse<Map<String, Object>> createStudent(@RequestBody UpsertStudentRequest request) {
-        return ApiResponse.success(classroomService.createStudent(request));
+    public ApiResponse<StudentResponse> createStudent(@RequestBody UpsertStudentRequest request) {
+        return ApiResponse.success(studentService.createStudent(request));
     }
 
     @PutMapping("/students/{studentUserId}")
-    public ApiResponse<Map<String, Object>> updateStudent(@PathVariable Long studentUserId,
-                                                          @RequestBody UpsertStudentRequest request) {
-        return ApiResponse.success(classroomService.updateStudent(studentUserId, request));
+    public ApiResponse<StudentResponse> updateStudent(@PathVariable Long studentUserId,
+                                                      @RequestBody UpsertStudentRequest request) {
+        return ApiResponse.success(studentService.updateStudent(studentUserId, request));
     }
 
     @DeleteMapping("/students/{studentUserId}")
     public ApiResponse<Map<String, Object>> deleteStudent(@PathVariable Long studentUserId) {
-        classroomService.deleteStudent(studentUserId);
+        studentService.deleteStudent(studentUserId);
         return ApiResponse.success("学生已删除", Map.of());
     }
 
     @GetMapping("/tasks")
-    public ApiResponse<List<Map<String, Object>>> teacherTasks() {
-        return ApiResponse.success(classroomService.listTasksForTeacher());
+    public ApiResponse<List<ClassroomTaskResponse>> teacherTasks() {
+        return ApiResponse.success(taskService.listTasksForTeacher());
     }
 
     @PostMapping("/tasks")
-    public ApiResponse<Map<String, Object>> createTask(@RequestBody CreateTaskRequest request) {
-        return ApiResponse.success(classroomService.createTask(request));
+    public ApiResponse<ClassroomTaskResponse> createTask(@RequestBody CreateTaskRequest request) {
+        return ApiResponse.success(taskService.createTask(request));
     }
 
     @GetMapping("/tasks/{taskId}")
-    public ApiResponse<Map<String, Object>> getTask(@PathVariable String taskId) {
-        return ApiResponse.success(classroomService.getTaskForTeacher(taskId));
+    public ApiResponse<ClassroomTaskResponse> getTask(@PathVariable String taskId) {
+        return ApiResponse.success(taskService.getTaskForTeacher(taskId));
     }
 
     @PutMapping("/tasks/{taskId}")
-    public ApiResponse<Map<String, Object>> updateTask(@PathVariable String taskId,
-                                                       @RequestBody CreateTaskRequest request) {
-        return ApiResponse.success(classroomService.updateTask(taskId, request));
+    public ApiResponse<ClassroomTaskResponse> updateTask(@PathVariable String taskId,
+                                                         @RequestBody CreateTaskRequest request) {
+        return ApiResponse.success(taskService.updateTask(taskId, request));
     }
 
     @DeleteMapping("/tasks/{taskId}")
     public ApiResponse<Map<String, Object>> deleteTask(@PathVariable String taskId) {
-        classroomService.deleteTask(taskId);
+        taskService.deleteTask(taskId);
         return ApiResponse.success("任务已删除", Map.of());
     }
 
@@ -147,8 +173,8 @@ public class ClassroomController {
     }
 
     @PostMapping("/tasks/{taskId}/publish")
-    public ApiResponse<Map<String, Object>> publish(@PathVariable String taskId) {
-        return ApiResponse.success(classroomService.publishTask(taskId));
+    public ApiResponse<ClassroomTaskResponse> publish(@PathVariable String taskId) {
+        return ApiResponse.success(taskService.publishTask(taskId));
     }
 
     @PostMapping("/tasks/{taskId}/send-reminders")
@@ -169,28 +195,45 @@ public class ClassroomController {
     }
 
     @GetMapping("/tasks/{taskId}/submissions")
-    public ApiResponse<List<Map<String, Object>>> submissions(@PathVariable String taskId) {
-        return ApiResponse.success(classroomService.listSubmissions(taskId));
+    public ApiResponse<List<TaskSubmissionResponse>> submissions(@PathVariable String taskId) {
+        return ApiResponse.success(submissionService.listSubmissions(taskId));
+    }
+
+    @GetMapping("/submissions/recent-summary")
+    public ApiResponse<Map<String, Object>> recentSubmissionsSummary() {
+        return ApiResponse.success(teacherSubmissionsSummaryService.summarizeForCurrentTeacher());
+    }
+
+    @GetMapping("/class-insight/summary")
+    public ApiResponse<Map<String, Object>> classInsightSummary(
+            @RequestParam(required = false) String focus,
+            @RequestParam(required = false) String question) {
+        return ApiResponse.success(teacherClassInsightSummaryService.summarize(focus, question));
+    }
+
+    @GetMapping("/my-assignments/summary")
+    public ApiResponse<Map<String, Object>> myAssignmentsSummary() {
+        return ApiResponse.success(assignmentSummaryService.summarizeForCurrentStudent());
     }
 
     @GetMapping("/my-assignments")
-    public ApiResponse<List<Map<String, Object>>> myAssignments() {
-        return ApiResponse.success(classroomService.listMyAssignments());
+    public ApiResponse<List<StudentAssignmentResponse>> myAssignments() {
+        return ApiResponse.success(taskService.listMyAssignments());
     }
 
     @PostMapping("/submit-file")
-    public ApiResponse<Map<String, Object>> submitFile(@RequestParam String taskId,
-                                                       @RequestParam String subTaskId,
-                                                       @RequestParam MultipartFile file) throws IOException {
-        return ApiResponse.success("提交成功", classroomService.submitFile(taskId, subTaskId, file));
+    public ApiResponse<SubmissionResponse> submitFile(@RequestParam String taskId,
+                                                      @RequestParam String subTaskId,
+                                                      @RequestParam MultipartFile file) throws IOException {
+        return ApiResponse.success("提交成功", submissionService.submitFile(taskId, subTaskId, file));
     }
 
     @PostMapping("/submit")
-    public ApiResponse<Map<String, Object>> submitText(@RequestParam String taskId,
-                                                       @RequestParam String subTaskId,
-                                                       @RequestParam(required = false) String fileName,
-                                                       @RequestParam String content) {
-        return ApiResponse.success(classroomService.submitText(taskId, subTaskId, fileName, content));
+    public ApiResponse<SubmissionResponse> submitText(@RequestParam String taskId,
+                                                        @RequestParam String subTaskId,
+                                                        @RequestParam(required = false) String fileName,
+                                                        @RequestParam String content) {
+        return ApiResponse.success(submissionService.submitText(taskId, subTaskId, fileName, content));
     }
 
     @PostMapping("/submissions/{submissionId}/grading-assist")
@@ -199,14 +242,14 @@ public class ClassroomController {
     }
 
     @PostMapping("/grade")
-    public ApiResponse<Map<String, Object>> grade(@RequestBody GradeSubmissionRequest request) {
-        return ApiResponse.success(classroomService.gradeSubmission(
+    public ApiResponse<SubmissionResponse> grade(@RequestBody GradeSubmissionRequest request) {
+        return ApiResponse.success(submissionService.gradeSubmission(
                 request.getSubmissionId(), request.getScore(), request.getComment()));
     }
 
     @PostMapping("/reject")
-    public ApiResponse<Map<String, Object>> reject(@RequestBody GradeSubmissionRequest request) {
-        return ApiResponse.success(classroomService.rejectSubmission(
+    public ApiResponse<SubmissionResponse> reject(@RequestBody GradeSubmissionRequest request) {
+        return ApiResponse.success(submissionService.rejectSubmission(
                 request.getSubmissionId(), request.getComment()));
     }
 }

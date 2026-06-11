@@ -46,7 +46,7 @@ public class SubmissionGradingAssistService {
             """;
 
     private final KimiChatService kimiChatService;
-    private final ClassroomService classroomService;
+    private final ClassroomAccessSupport access;
     private final ClassroomDashboardService dashboardService;
     private final ClassroomSubmissionMapper submissionMapper;
     private final ClassroomTaskMapper taskMapper;
@@ -54,14 +54,14 @@ public class SubmissionGradingAssistService {
     private final SysUserMapper sysUserMapper;
 
     public SubmissionGradingAssistService(KimiChatService kimiChatService,
-                                          ClassroomService classroomService,
+                                          ClassroomAccessSupport access,
                                           ClassroomDashboardService dashboardService,
                                           ClassroomSubmissionMapper submissionMapper,
                                           ClassroomTaskMapper taskMapper,
                                           ClassroomSubTaskMapper subTaskMapper,
                                           SysUserMapper sysUserMapper) {
         this.kimiChatService = kimiChatService;
-        this.classroomService = classroomService;
+        this.access = access;
         this.dashboardService = dashboardService;
         this.submissionMapper = submissionMapper;
         this.taskMapper = taskMapper;
@@ -70,7 +70,7 @@ public class SubmissionGradingAssistService {
     }
 
     public Map<String, Object> assist(String submissionId) {
-        classroomService.requireTeacher();
+        access.requireTeacher();
         ClassroomSubmissionEntity sub = submissionMapper.findById(submissionId);
         if (sub == null) {
             throw new IllegalArgumentException("提交记录不存在：" + submissionId);

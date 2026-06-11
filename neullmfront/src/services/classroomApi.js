@@ -54,6 +54,18 @@ export default {
   myAssignments() {
     return http.get('/api/classroom/my-assignments').then(unwrap);
   },
+  myAssignmentsSummary() {
+    return http.get('/api/classroom/my-assignments/summary').then(unwrap);
+  },
+  recentSubmissionsSummary() {
+    return http.get('/api/classroom/submissions/recent-summary').then(unwrap);
+  },
+  classInsightSummary({ focus, question } = {}) {
+    const params = {};
+    if (focus) params.focus = focus;
+    if (question) params.question = question;
+    return http.get('/api/classroom/class-insight/summary', { params }).then(unwrap);
+  },
   submitFile(taskId, subTaskId, file) {
     const form = new FormData();
     form.append('taskId', taskId);

@@ -62,7 +62,7 @@
             <span class="rv">{{ val }}</span>
           </div>
         </div>
-        <router-link to="/teacher/progress" class="classroom-action-link">
+        <router-link :to="dashboardProgressLink" class="classroom-action-link">
           打开进度看板 <i class="fas fa-chart-line"></i>
         </router-link>
       </template>
@@ -101,7 +101,15 @@
       <template v-else-if="kind === 'classroom_remind'">
         <div class="cf-result-row">
           <span class="rk">任务</span>
-          <span class="rv">{{ remindData.title || remindData.taskId }}</span>
+          <router-link
+            v-if="remindData.taskId"
+            :to="remindTaskLink"
+            class="rv classroom-remind-task-link"
+          >
+            {{ remindData.title || remindData.taskId }}
+            <i class="fas fa-external-link-alt" aria-hidden="true"></i>
+          </router-link>
+          <span v-else class="rv">{{ remindData.title || '—' }}</span>
         </div>
         <div class="cf-result-row">
           <span class="rk">待跟进</span>
@@ -110,8 +118,19 @@
         <p v-if="remindData.shortMessage" class="classroom-remind-summary">{{ remindData.shortMessage }}</p>
         <ul v-if="pendingStudents.length" class="classroom-pending-list">
           <li v-for="(s, i) in pendingStudents" :key="i">
-            <span class="pending-name">{{ s.studentName }}</span>
-            <span class="pending-meta">{{ s.studentId }} · {{ s.status }}</span>
+            <router-link
+              v-if="remindData.taskId && s.studentId"
+              :to="remindStudentLink(s)"
+              class="classroom-pending-link"
+            >
+              <span class="pending-name">{{ s.studentName }}</span>
+              <span class="pending-meta">{{ s.studentId }} · {{ s.status }}</span>
+              <i class="fas fa-chevron-right classroom-pending-arrow" aria-hidden="true"></i>
+            </router-link>
+            <template v-else>
+              <span class="pending-name">{{ s.studentName }}</span>
+              <span class="pending-meta">{{ s.studentId }} · {{ s.status }}</span>
+            </template>
           </li>
         </ul>
         <p v-else-if="!remindData.pendingCount" class="classroom-remind-summary">全班已提交，无需催交。</p>
@@ -127,6 +146,13 @@
           </button>
           <button type="button" class="classroom-copy-btn" @click="copyRemind">复制话术</button>
         </div>
+        <router-link
+          v-if="remindData.taskId && remindData.pendingCount > 0"
+          :to="remindTaskLink"
+          class="classroom-action-link"
+        >
+          在学情看板查看待交学生 <i class="fas fa-chart-line"></i>
+        </router-link>
         <p v-if="sendError" class="classroom-send-err">{{ sendError }}</p>
         <p v-if="sendHint" class="classroom-send-hint">{{ sendHint }}</p>
       </template>
@@ -203,6 +229,7 @@
 <script setup>
 import { computed, ref } from 'vue';
 import classroomApi from '@/services/classroomApi';
+import { buildTeacherProgressLink } from '@/utils/teacherClassroomNav';
 
 const props = defineProps({
   kind: { type: String, default: '' },
@@ -261,11 +288,34 @@ const taskHint = computed(() => {
 const dashboard = computed(() => props.data || {});
 const dashSummary = computed(() => dashboard.value.summary || null);
 
+const dashboardProgressLink = computed(() =>
+  buildTeacherProgressLink({
+    taskId: dashboard.value.taskId,
+    view: 'matrix',
+  }),
+);
+
 const grading = computed(() => props.data || {});
 const remindData = computed(() => props.data || {});
 const pendingStudents = computed(() =>
   Array.isArray(remindData.value.pendingStudents) ? remindData.value.pendingStudents : [],
 );
+
+const remindTaskLink = computed(() =>
+  buildTeacherProgressLink({
+    taskId: remindData.value.taskId,
+    filter: 'remind',
+    view: 'matrix',
+  }),
+);
+
+function remindStudentLink(student) {
+  return buildTeacherProgressLink({
+    taskId: remindData.value.taskId,
+    studentId: student.studentId,
+    view: 'lane',
+  });
+}
 const sentList = computed(() =>
   Array.isArray(remindData.value.sent) ? remindData.value.sent : [],
 );
@@ -604,16 +654,34 @@ function formatKey(key) {
   overflow: hidden;
 }
 .classroom-pending-list li {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  gap: 6px;
-  padding: 10px 12px;
   border-bottom: 1px solid #f1f5f9;
   font-size: 0.86rem;
 }
 .classroom-pending-list li:last-child {
   border-bottom: none;
+}
+.classroom-pending-link {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  padding: 10px 12px;
+  text-decoration: none;
+  color: inherit;
+  transition: background 0.15s ease;
+}
+.classroom-pending-link:hover {
+  background: rgba(13, 148, 136, 0.06);
+}
+.classroom-pending-arrow {
+  flex-shrink: 0;
+  font-size: 0.72rem;
+  color: #94a3b8;
+  margin-left: auto;
+}
+.classroom-pending-link:hover .classroom-pending-arrow {
+  color: #0d9488;
 }
 .pending-name {
   font-weight: 600;
@@ -621,6 +689,21 @@ function formatKey(key) {
 }
 .pending-meta {
   color: #64748b;
+}
+.classroom-remind-task-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #0d9488;
+  font-weight: 600;
+  text-decoration: none;
+}
+.classroom-remind-task-link:hover {
+  text-decoration: underline;
+}
+.classroom-remind-task-link i {
+  font-size: 0.72rem;
+  opacity: 0.85;
 }
 .classroom-remind-actions {
   display: flex;

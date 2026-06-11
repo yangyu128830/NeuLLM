@@ -17,18 +17,18 @@ import java.util.Map;
 @Service
 public class ClassroomReminderService {
 
-    private final ClassroomService classroomService;
+    private final ClassroomAccessSupport access;
     private final ClassroomDashboardService dashboardService;
     private final UserProfileService userProfileService;
     private final SendEmailService sendEmailService;
     private final NotificationService notificationService;
 
-    public ClassroomReminderService(ClassroomService classroomService,
+    public ClassroomReminderService(ClassroomAccessSupport access,
                                     ClassroomDashboardService dashboardService,
                                     UserProfileService userProfileService,
                                     SendEmailService sendEmailService,
                                     NotificationService notificationService) {
-        this.classroomService = classroomService;
+        this.access = access;
         this.dashboardService = dashboardService;
         this.userProfileService = userProfileService;
         this.sendEmailService = sendEmailService;
@@ -64,7 +64,7 @@ public class ClassroomReminderService {
     }
 
     public Map<String, Object> sendReminders(String taskId) {
-        classroomService.requireTeacher();
+        access.requireTeacher();
         Map<String, Object> built = buildReminder(taskId);
         @SuppressWarnings("unchecked")
         List<Map<String, Object>> pending = (List<Map<String, Object>>) built.get("pendingStudents");
@@ -108,7 +108,7 @@ public class ClassroomReminderService {
     }
 
     public Map<String, Object> sendReminderToStudent(String taskId, Long studentUserId, String subTaskId) {
-        classroomService.requireTeacher();
+        access.requireTeacher();
         if (studentUserId == null) {
             throw new IllegalArgumentException("studentUserId 不能为空");
         }

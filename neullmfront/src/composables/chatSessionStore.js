@@ -14,6 +14,10 @@ export function chatSessionKey(teacherMode) {
 function isEphemeralMessage(m) {
   if (!m || typeof m !== 'object') return true;
   if (m.isStreaming) return true;
+  if (m.isMessagesSummary && m.messagesSummaryLoading) return true;
+  if (m.isAssignmentsSummary && m.assignmentsSummaryLoading) return true;
+  if (m.isTeacherSubmissionsSummary && m.teacherSubmissionsSummaryLoading) return true;
+  if (m.isTeacherClassInsightSummary && m.teacherClassInsightSummaryLoading) return true;
   return !!(
     m.isLearningReminderForm ||
     m.isEmailReminderForm ||

@@ -9,9 +9,12 @@
 }
 
 @media (max-width: 960px) {
+  html.teacher-route,
   html.teacher-route body,
   html.teacher-route #app {
-    overflow-x: clip;
+    height: 100%;
+    min-height: 100dvh;
+    overflow: hidden;
   }
 
   html.teacher-route body,
@@ -31,32 +34,86 @@
       0 1px 2px rgba(15, 23, 42, 0.04),
       0 6px 22px rgba(15, 23, 42, 0.08);
     --t-mobile-pad-x: 14px;
-    overflow-x: clip;
+    height: 100%;
+    min-height: 0;
+    max-height: 100dvh;
+    overflow: hidden;
     max-width: 100%;
   }
 
+  .teacher-app .teacher-body {
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
   .teacher-app .teacher-main {
+    flex: 1;
+    min-height: 0;
     padding-left: var(--t-mobile-pad-x);
     padding-right: var(--t-mobile-pad-x);
     max-width: 100%;
     overflow-x: clip;
     overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-y: contain;
     background-size: 28px 28px, 28px 28px, auto, auto, auto;
   }
 
+  /* 非对话页：内容随高度撑开，由 teacher-main 统一滚动 */
   .teacher-app .t-page {
+    flex: none;
+    min-height: auto;
     max-width: 100%;
     min-width: 0;
     width: 100%;
-    overflow-x: clip;
+    overflow: visible;
     gap: 10px;
   }
 
   .teacher-app .t-ws-body,
   .teacher-app .t-ws-body--scroll {
+    flex: none;
+    min-height: auto;
     min-width: 0;
     width: 100%;
-    overflow-x: clip;
+    overflow: visible;
+  }
+
+  .teacher-app .chat-page--teacher-shell {
+    flex: 1;
+    min-height: 0;
+    height: auto;
+    max-height: 100%;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .teacher-app .chat-page--teacher-shell .app-container,
+  .teacher-app .chat-page--teacher-shell .app-content {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .teacher-app .chat-page--teacher-shell .chat-container {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .teacher-app .chat-page--teacher-shell .chat-messages {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-y: contain;
   }
 
   /* 卡片/面板统一宽度，避免左右被裁切 */
@@ -75,9 +132,11 @@
     box-sizing: border-box;
   }
 
+  /* 对话页：主区不滚，消息列表内滚 */
   .teacher-app .teacher-main:has(.chat-page--teacher-shell) {
     padding-left: 0;
     padding-right: 0;
+    overflow: hidden;
   }
 
   /* ── 页头 ── */
@@ -194,8 +253,11 @@
   .teacher-app .teacher-main:has(.t-prog-page),
   .teacher-app .teacher-main:has(.t-grade-page),
   .teacher-app .teacher-main:has(.t-tasks-page),
+  .teacher-app .teacher-main:has(.t-students-page),
   .teacher-app .teacher-main:has(.t-profile-page) {
     overflow-x: clip;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
   }
 
   .teacher-app .t-prog-live-badge,

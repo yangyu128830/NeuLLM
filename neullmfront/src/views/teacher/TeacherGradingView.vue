@@ -254,6 +254,8 @@ import { useTeacherClassroom } from '../../composables/useTeacherClassroom';
 const {
   tasks,
   tasksBySubjectFilter,
+  subjectFilter,
+  setSubjectFilter,
   currentTaskId,
   currentTask,
   dashboard,
@@ -323,6 +325,62 @@ function applyGradingQuery() {
   const status = route.query.status;
   if (status === 'pending' || status === 'graded' || status === 'rejected' || status === 'all') {
     statusFilter.value = status;
+  }
+}
+
+let deepLinkFocusing = false;
+let lastDeepLinkKey = '';
+
+async function applyDeepLinkFocus() {
+  if (deepLinkFocusing) return;
+  const taskId = route.query.taskId ? String(route.query.taskId) : '';
+  const submissionId = route.query.submissionId ? String(route.query.submissionId) : '';
+  if (!taskId && !submissionId) {
+    lastDeepLinkKey = '';
+    return;
+  }
+
+  const linkKey = `${taskId}:${submissionId}`;
+  deepLinkFocusing = true;
+  try {
+    applyGradingQuery();
+
+    if (taskId && tasks.value.length) {
+      const task = tasks.value.find((t) => t.taskId === taskId);
+      if (task) {
+        const subj = (task.subject || '').trim() || '__unset__';
+        if (subjectFilter.value !== 'all' && subjectFilter.value !== subj) {
+          setSubjectFilter('all');
+        }
+        if (currentTaskId.value !== taskId) {
+          currentTaskId.value = taskId;
+          await refreshDashboard();
+        }
+      }
+    }
+
+    if (!submissionId || !submissions.value.length) return;
+
+    const sub = submissions.value.find((s) => s.submissionId === submissionId);
+    if (!sub || lastDeepLinkKey === linkKey) return;
+
+    ensureGradeForm(sub);
+    viewMode.value = 'list';
+    if (!route.query.status && sub.status === 'SUBMITTED') {
+      statusFilter.value = 'pending';
+    }
+
+    const row = matrixRows.value.find(
+      (r) =>
+        r.studentId === sub.studentNo
+        || r.studentName === sub.studentName,
+    );
+    activeSubmissionIdx.value = row ? studentColorIdx(row) : 0;
+    activeSubmission.value = sub;
+    modalOpen.value = true;
+    lastDeepLinkKey = linkKey;
+  } finally {
+    deepLinkFocusing = false;
   }
 }
 
@@ -487,8 +545,23 @@ onUnmounted(() => {
 
 watch(() => route.query.student, applyGradingQuery);
 
+watch(
+  () => [
+    route.query.taskId,
+    route.query.submissionId,
+    route.query.status,
+    tasks.value.length,
+    currentTaskId.value,
+    submissions.value.map((s) => s.submissionId).join(','),
+  ],
+  () => {
+    void applyDeepLinkFocus();
+  },
+);
+
 onMounted(async () => {
   applyGradingQuery();
-  if (currentTaskId.value) await refreshDashboard();
+  if (currentTaskId.value && !route.query.taskId) await refreshDashboard();
+  await applyDeepLinkFocus();
 });
 </script>

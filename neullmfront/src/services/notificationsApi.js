@@ -21,4 +21,7 @@ export default {
   markAllRead() {
     return http.post('/api/notifications/read-all').then(unwrap);
   },
+  summary(limit = 20) {
+    return http.get('/api/notifications/summary', { params: { limit } }).then(unwrap);
+  },
 };

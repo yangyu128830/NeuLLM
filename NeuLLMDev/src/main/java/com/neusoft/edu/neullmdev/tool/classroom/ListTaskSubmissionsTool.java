@@ -2,7 +2,7 @@ package com.neusoft.edu.neullmdev.tool.classroom;
 
 import com.neusoft.edu.neullmdev.model.mcp.McpCallContext;
 import com.neusoft.edu.neullmdev.model.mcp.ToolResult;
-import com.neusoft.edu.neullmdev.service.classroom.ClassroomService;
+import com.neusoft.edu.neullmdev.service.classroom.ClassroomSubmissionService;
 import com.neusoft.edu.neullmdev.service.mcp.McpToolHandler;
 import org.springframework.stereotype.Component;
 
@@ -11,10 +11,10 @@ import java.util.Map;
 @Component
 public class ListTaskSubmissionsTool implements McpToolHandler {
 
-    private final ClassroomService classroomService;
+    private final ClassroomSubmissionService submissionService;
 
-    public ListTaskSubmissionsTool(ClassroomService classroomService) {
-        this.classroomService = classroomService;
+    public ListTaskSubmissionsTool(ClassroomSubmissionService submissionService) {
+        this.submissionService = submissionService;
     }
 
     @Override
@@ -25,7 +25,7 @@ public class ListTaskSubmissionsTool implements McpToolHandler {
     @Override
     public ToolResult handle(Map<String, Object> arguments, McpCallContext context) {
         String taskId = ListClassroomStudentsTool.stringArg(arguments, "taskId");
-        var list = classroomService.listSubmissions(taskId);
+        var list = submissionService.listSubmissions(taskId);
         return new ToolResult(toolName(), "任务 " + taskId + " 共 " + list.size() + " 条提交", list);
     }
 }

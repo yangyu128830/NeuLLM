@@ -189,10 +189,7 @@
     padding-bottom: var(--mobile-nav-pad);
   }
 
-  .teacher-app .t-page {
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
-  }
+  /* 教师端滚动由 teacher-mobile.css 的 .teacher-main 统一处理 */
 
   .teacher-app .t-page-head,
   .teacher-app .t-hero,

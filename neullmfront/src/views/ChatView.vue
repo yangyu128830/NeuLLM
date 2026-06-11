@@ -432,6 +432,63 @@
               <AppNavJumpCard :target="message.appNavTarget" />
             </div>
 
+            <!-- 消息查询与汇总（真实拉取 /api/notifications） -->
+            <div v-else-if="message.isMessagesSummary" class="messages-summary-wrap">
+              <MessagesSummaryCard
+                :loading="!!message.messagesSummaryLoading"
+                :error="message.messagesSummaryError || ''"
+                :summary="message.messagesSummaryData?.summary || ''"
+                :unread="message.messagesSummaryData?.unread ?? 0"
+                :unread-items="message.messagesSummaryData?.unreadItems || []"
+                :empty="!!message.messagesSummaryData?.empty"
+                @retry="() => retryMessagesSummary(message)"
+              />
+            </div>
+
+            <!-- 作业待办查询（真实拉取 /api/classroom/my-assignments/summary） -->
+            <div v-else-if="message.isAssignmentsSummary" class="assignments-summary-wrap">
+              <AssignmentsSummaryCard
+                :loading="!!message.assignmentsSummaryLoading"
+                :error="message.assignmentsSummaryError || ''"
+                :summary="message.assignmentsSummaryData?.summary || ''"
+                :pending-count="message.assignmentsSummaryData?.pendingCount ?? 0"
+                :total-tasks="message.assignmentsSummaryData?.totalTasks ?? 0"
+                :pending-items="message.assignmentsSummaryData?.pendingItems || []"
+                :empty="!!message.assignmentsSummaryData?.empty"
+                @retry="() => retryAssignmentsSummary(message)"
+              />
+            </div>
+
+            <!-- 教师：班级学情洞察（待交 / 表现好 / 学情概况，真实数据 + AI 总结） -->
+            <div v-else-if="message.isTeacherClassInsightSummary" class="teacher-class-insight-summary-wrap">
+              <TeacherClassInsightSummaryCard
+                :loading="!!message.teacherClassInsightSummaryLoading"
+                :error="message.teacherClassInsightSummaryError || ''"
+                :summary="message.teacherClassInsightSummaryData?.summary || ''"
+                :focus="message.teacherClassInsightSummaryData?.focus || 'general'"
+                :focus-label="message.teacherClassInsightSummaryData?.focusLabel || '班级学情'"
+                :class-completion-percent="message.teacherClassInsightSummaryData?.classCompletionPercent"
+                :highlight-students="message.teacherClassInsightSummaryData?.highlightStudents || []"
+                :latest-task-id="message.teacherClassInsightSummaryData?.latestTaskId || ''"
+                :empty="!!message.teacherClassInsightSummaryData?.empty"
+                @retry="() => retryTeacherClassInsightSummary(message)"
+              />
+            </div>
+
+            <!-- 教师：学生提交概况（真实拉取 /api/classroom/submissions/recent-summary） -->
+            <div v-else-if="message.isTeacherSubmissionsSummary" class="teacher-submissions-summary-wrap">
+              <TeacherSubmissionsSummaryCard
+                :loading="!!message.teacherSubmissionsSummaryLoading"
+                :error="message.teacherSubmissionsSummaryError || ''"
+                :summary="message.teacherSubmissionsSummaryData?.summary || ''"
+                :pending-count="message.teacherSubmissionsSummaryData?.pendingCount ?? 0"
+                :total-submissions="message.teacherSubmissionsSummaryData?.totalSubmissions ?? 0"
+                :pending-items="message.teacherSubmissionsSummaryData?.pendingItems || []"
+                :empty="!!message.teacherSubmissionsSummaryData?.empty"
+                @retry="() => retryTeacherSubmissionsSummary(message)"
+              />
+            </div>
+
             <!-- 学习日程提醒表单（后端函数 create_travel_reminder / setTravelReminder 弹窗编辑） -->
             <div v-else-if="message.functionName === 'setTravelReminder' || message.functionName === 'create_travel_reminder'" class="travel-reminder-container">
               <TravelReminder
@@ -718,7 +775,16 @@ import ClassroomResultCard from '@/components/ClassroomResultCard.vue';
 import ClassroomTaskConfirmCard from '@/components/ClassroomTaskConfirmCard.vue';
 import ClassroomDocumentImportCard from '@/components/ClassroomDocumentImportCard.vue';
 import AppNavJumpCard from '@/components/AppNavJumpCard.vue';
+import MessagesSummaryCard from '@/components/MessagesSummaryCard.vue';
+import AssignmentsSummaryCard from '@/components/AssignmentsSummaryCard.vue';
+import TeacherSubmissionsSummaryCard from '@/components/TeacherSubmissionsSummaryCard.vue';
+import TeacherClassInsightSummaryCard from '@/components/TeacherClassInsightSummaryCard.vue';
 import { detectAppNavIntent } from '@/constants/appNavIntents';
+import { wantsMessagesSummary } from '@/utils/messageSummary';
+import { wantsAssignmentSummary } from '@/utils/assignmentSummary';
+import { wantsTeacherSubmissionsSummary } from '@/utils/teacherSubmissionSummary';
+import { detectTeacherClassInsight } from '@/utils/teacherClassInsightSummary';
+import classroomApi from '@/services/classroomApi';
 import { loadChatSession, saveChatSession } from '@/composables/chatSessionStore';
 import notificationsApi from '@/services/notificationsApi';
 import { fetchEventSource } from '@microsoft/fetch-event-source';
@@ -2028,6 +2094,124 @@ const saveTravelReminder = async (message, reminder) => {
   }
 };
 
+async function loadMessagesSummaryIntoMessage(message) {
+  message.messagesSummaryLoading = true;
+  message.messagesSummaryError = '';
+  isLoading.value = true;
+  try {
+    const data = await notificationsApi.summary(20);
+    message.messagesSummaryData = {
+      summary: data?.summary || '',
+      unread: data?.unread ?? 0,
+      unreadItems: Array.isArray(data?.unreadItems) ? data.unreadItems : [],
+      empty: !!data?.empty,
+      allCaughtUp: !!data?.allCaughtUp,
+      total: data?.total ?? 0,
+    };
+    message.content = message.messagesSummaryData.summary;
+  } catch (e) {
+    message.messagesSummaryError = e?.message || '消息加载失败，请稍后再试';
+  } finally {
+    message.messagesSummaryLoading = false;
+    isLoading.value = false;
+    scrollToBottom();
+  }
+}
+
+async function retryMessagesSummary(message) {
+  await loadMessagesSummaryIntoMessage(message);
+}
+
+async function loadAssignmentsSummaryIntoMessage(message) {
+  message.assignmentsSummaryLoading = true;
+  message.assignmentsSummaryError = '';
+  isLoading.value = true;
+  try {
+    const data = await classroomApi.myAssignmentsSummary();
+    message.assignmentsSummaryData = {
+      summary: data?.summary || '',
+      pendingCount: data?.pendingCount ?? 0,
+      totalTasks: data?.totalTasks ?? 0,
+      pendingItems: Array.isArray(data?.pendingItems) ? data.pendingItems : [],
+      empty: !!data?.empty,
+    };
+    message.content = message.assignmentsSummaryData.summary;
+  } catch (e) {
+    message.assignmentsSummaryError = e?.message || '作业查询失败，请稍后再试';
+  } finally {
+    message.assignmentsSummaryLoading = false;
+    isLoading.value = false;
+    scrollToBottom();
+  }
+}
+
+async function retryAssignmentsSummary(message) {
+  await loadAssignmentsSummaryIntoMessage(message);
+}
+
+async function loadTeacherSubmissionsSummaryIntoMessage(message) {
+  message.teacherSubmissionsSummaryLoading = true;
+  message.teacherSubmissionsSummaryError = '';
+  isLoading.value = true;
+  try {
+    const data = await classroomApi.recentSubmissionsSummary();
+    message.teacherSubmissionsSummaryData = {
+      summary: data?.summary || '',
+      pendingCount: data?.pendingCount ?? 0,
+      totalSubmissions: data?.totalSubmissions ?? 0,
+      pendingItems: Array.isArray(data?.pendingItems) ? data.pendingItems : [],
+      empty: !!data?.empty,
+    };
+    message.content = message.teacherSubmissionsSummaryData.summary;
+  } catch (e) {
+    message.teacherSubmissionsSummaryError = e?.message || '提交汇总失败，请稍后再试';
+  } finally {
+    message.teacherSubmissionsSummaryLoading = false;
+    isLoading.value = false;
+    scrollToBottom();
+  }
+}
+
+async function retryTeacherSubmissionsSummary(message) {
+  await loadTeacherSubmissionsSummaryIntoMessage(message);
+}
+
+async function loadTeacherClassInsightSummaryIntoMessage(message, insightIntent, question) {
+  message.teacherClassInsightSummaryLoading = true;
+  message.teacherClassInsightSummaryError = '';
+  isLoading.value = true;
+  try {
+    const data = await classroomApi.classInsightSummary({
+      focus: insightIntent?.focus,
+      question,
+    });
+    message.teacherClassInsightSummaryData = {
+      summary: data?.summary || '',
+      focus: data?.focus || insightIntent?.focus || 'general',
+      focusLabel: data?.focusLabel || insightIntent?.label || '班级学情',
+      classCompletionPercent: data?.classCompletionPercent ?? null,
+      highlightStudents: Array.isArray(data?.highlightStudents) ? data.highlightStudents : [],
+      latestTaskId: data?.latestTaskId || '',
+      empty: !!data?.empty,
+    };
+    message.content = message.teacherClassInsightSummaryData.summary;
+  } catch (e) {
+    message.teacherClassInsightSummaryError = e?.message || '学情汇总失败，请稍后再试';
+  } finally {
+    message.teacherClassInsightSummaryLoading = false;
+    isLoading.value = false;
+    scrollToBottom();
+  }
+}
+
+async function retryTeacherClassInsightSummary(message) {
+  await loadTeacherClassInsightSummaryIntoMessage(
+    message,
+    { focus: message.teacherClassInsightSummaryData?.focus, label: message.teacherClassInsightSummaryData?.focusLabel },
+    message.teacherClassInsightQuestion || '',
+  );
+}
+
 const sendMessage = async () => {
   if (isLoading.value || !userInput.value.trim()) return;
 
@@ -2037,6 +2221,68 @@ const sendMessage = async () => {
 
   messages.value.push({ role: 'user', content: inputText });
   scrollToBottom();
+
+  const classInsightIntent = props.teacherMode ? detectTeacherClassInsight(inputText) : null;
+  if (classInsightIntent) {
+    const summaryMsg = {
+      role: 'assistant',
+      content: '',
+      isTeacherClassInsightSummary: true,
+      teacherClassInsightSummaryLoading: true,
+      teacherClassInsightSummaryError: '',
+      teacherClassInsightSummaryData: null,
+      teacherClassInsightQuestion: inputText,
+    };
+    messages.value.push(summaryMsg);
+    scrollToBottom();
+    await loadTeacherClassInsightSummaryIntoMessage(summaryMsg, classInsightIntent, inputText);
+    return;
+  }
+
+  if (props.teacherMode && wantsTeacherSubmissionsSummary(inputText)) {
+    const summaryMsg = {
+      role: 'assistant',
+      content: '',
+      isTeacherSubmissionsSummary: true,
+      teacherSubmissionsSummaryLoading: true,
+      teacherSubmissionsSummaryError: '',
+      teacherSubmissionsSummaryData: null,
+    };
+    messages.value.push(summaryMsg);
+    scrollToBottom();
+    await loadTeacherSubmissionsSummaryIntoMessage(summaryMsg);
+    return;
+  }
+
+  if (!props.teacherMode && wantsAssignmentSummary(inputText)) {
+    const summaryMsg = {
+      role: 'assistant',
+      content: '',
+      isAssignmentsSummary: true,
+      assignmentsSummaryLoading: true,
+      assignmentsSummaryError: '',
+      assignmentsSummaryData: null,
+    };
+    messages.value.push(summaryMsg);
+    scrollToBottom();
+    await loadAssignmentsSummaryIntoMessage(summaryMsg);
+    return;
+  }
+
+  if (!props.teacherMode && wantsMessagesSummary(inputText)) {
+    const summaryMsg = {
+      role: 'assistant',
+      content: '',
+      isMessagesSummary: true,
+      messagesSummaryLoading: true,
+      messagesSummaryError: '',
+      messagesSummaryData: null,
+    };
+    messages.value.push(summaryMsg);
+    scrollToBottom();
+    await loadMessagesSummaryIntoMessage(summaryMsg);
+    return;
+  }
 
   const navTarget = detectAppNavIntent(inputText, { teacherMode: props.teacherMode });
   if (navTarget) {
@@ -2368,6 +2614,10 @@ function isInlineFormMessage(message) {
     message.isLearningReminderForm ||
     message.isReviewRhythmForm ||
     message.isAppNavJump ||
+    message.isMessagesSummary ||
+    message.isAssignmentsSummary ||
+    message.isTeacherClassInsightSummary ||
+    message.isTeacherSubmissionsSummary ||
     message.classroomResult ||
     message.isClassroomTaskConfirm ||
     message.isClassroomDocImport
@@ -3495,7 +3745,10 @@ html.chat-route .chat-page {
 .ai-message:has(.learning-reminder-form-wrap),
 .ai-message:has(.learning-email-reminder-form-wrap),
 .ai-message:has(.user-profile-form-wrap),
-.ai-message:has(.app-nav-jump-wrap) {
+.ai-message:has(.app-nav-jump-wrap),
+.ai-message:has(.messages-summary-wrap),
+.ai-message:has(.assignments-summary-wrap),
+.ai-message:has(.teacher-submissions-summary-wrap) {
   background: transparent;
   border: none;
   padding: 0;
@@ -3507,7 +3760,10 @@ html.chat-route .chat-page {
 .learning-reminder-form-wrap,
 .learning-email-reminder-form-wrap,
 .user-profile-form-wrap,
-.app-nav-jump-wrap {
+.app-nav-jump-wrap,
+.messages-summary-wrap,
+.assignments-summary-wrap,
+.teacher-submissions-summary-wrap {
   margin-top: 0;
   width: min(540px, 100%);
 }

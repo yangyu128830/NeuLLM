@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.neusoft.edu.neullmdev.dto.classroom.CreateTaskRequest;
 import com.neusoft.edu.neullmdev.model.mcp.McpCallContext;
 import com.neusoft.edu.neullmdev.model.mcp.ToolResult;
-import com.neusoft.edu.neullmdev.service.classroom.ClassroomService;
+import com.neusoft.edu.neullmdev.service.classroom.ClassroomTaskService;
 import com.neusoft.edu.neullmdev.service.mcp.McpToolHandler;
 import org.springframework.stereotype.Component;
 
@@ -14,11 +14,11 @@ import java.util.Map;
 @Component
 public class CreateClassroomTaskTool implements McpToolHandler {
 
-    private final ClassroomService classroomService;
+    private final ClassroomTaskService taskService;
     private final ObjectMapper objectMapper;
 
-    public CreateClassroomTaskTool(ClassroomService classroomService, ObjectMapper objectMapper) {
-        this.classroomService = classroomService;
+    public CreateClassroomTaskTool(ClassroomTaskService taskService, ObjectMapper objectMapper) {
+        this.taskService = taskService;
         this.objectMapper = objectMapper;
     }
 
@@ -28,7 +28,6 @@ public class CreateClassroomTaskTool implements McpToolHandler {
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public ToolResult handle(Map<String, Object> arguments, McpCallContext context) {
         CreateTaskRequest req = new CreateTaskRequest();
         req.setTitle(ListClassroomStudentsTool.stringArg(arguments, "title"));
@@ -42,7 +41,7 @@ public class CreateClassroomTaskTool implements McpToolHandler {
                     .map(item -> objectMapper.convertValue(item, CreateTaskRequest.SubTaskItem.class))
                     .toList());
         }
-        Map<String, Object> task = classroomService.createTask(req);
-        return new ToolResult(toolName(), "已创建任务 " + task.get("taskId"), task);
+        var task = taskService.createTask(req);
+        return new ToolResult(toolName(), "已创建任务 " + task.taskId(), task);
     }
 }
