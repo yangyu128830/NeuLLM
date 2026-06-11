@@ -1,3 +1,5 @@
+import { clearAllChatSessions } from '../composables/chatSessionStore';
+
 const TOKEN_KEY = 'neullm_auth_token';
 const USER_KEY = 'neullm_auth_user';
 const REMEMBER_KEY = 'neullm_remember_login';
@@ -23,6 +25,7 @@ export function setAuth(token, user) {
 export function clearAuth() {
   localStorage.removeItem(TOKEN_KEY);
   localStorage.removeItem(USER_KEY);
+  clearAllChatSessions();
 }
 
 export function isLoggedIn() {

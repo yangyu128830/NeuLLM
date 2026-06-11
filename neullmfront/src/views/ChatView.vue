@@ -426,6 +426,12 @@
               />
             </div>
 
+            <!-- 应用内页面一键跳转（个人中心、消息、作业等） -->
+            <div v-else-if="message.isAppNavJump" class="app-nav-jump-wrap">
+              <p v-if="message.content" class="app-nav-jump-lead">{{ message.content }}</p>
+              <AppNavJumpCard :target="message.appNavTarget" />
+            </div>
+
             <!-- 学习日程提醒表单（后端函数 create_travel_reminder / setTravelReminder 弹窗编辑） -->
             <div v-else-if="message.functionName === 'setTravelReminder' || message.functionName === 'create_travel_reminder'" class="travel-reminder-container">
               <TravelReminder
@@ -683,7 +689,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue';
+import { ref, computed, watch, onMounted, onUnmounted, onBeforeUnmount, nextTick } from 'vue';
 import { useRouter } from 'vue-router';
 import StudentBottomNav from '@/components/student/StudentBottomNav.vue';
 
@@ -711,6 +717,9 @@ import UserProfileFormCard from '@/components/UserProfileFormCard.vue';
 import ClassroomResultCard from '@/components/ClassroomResultCard.vue';
 import ClassroomTaskConfirmCard from '@/components/ClassroomTaskConfirmCard.vue';
 import ClassroomDocumentImportCard from '@/components/ClassroomDocumentImportCard.vue';
+import AppNavJumpCard from '@/components/AppNavJumpCard.vue';
+import { detectAppNavIntent } from '@/constants/appNavIntents';
+import { loadChatSession, saveChatSession } from '@/composables/chatSessionStore';
 import notificationsApi from '@/services/notificationsApi';
 import { fetchEventSource } from '@microsoft/fetch-event-source';
 
@@ -841,6 +850,15 @@ const welcomeText = props.teacherMode
   ? '您好，我是教学 Agent～创建/发布作业前会先让您确认；也可用「从文档建任务」导入任务书。催交、批量批改、学情看板均可一句话执行。'
   : '嗨，我是智学伴～就像坐在你旁边一起自习的老朋友。不管是整理笔记、帮你把难题讲明白，还是咱们一起排个复习节奏、设个提醒，你随口说一句就行。要是你还想查查天气、出门转转，我也会陪着你慢慢搞定。';
 
+function buildInitialMessages() {
+  const saved = loadChatSession(props.teacherMode);
+  if (saved?.length) return saved;
+  return [{ role: 'assistant', content: welcomeText }];
+}
+
+const userInput = ref('');
+const messages = ref(buildInitialMessages());
+
 const applyTemplate = (tpl) => {
   if (isLoading.value) return;
   if (tpl.action === 'document_import') {
@@ -920,13 +938,6 @@ function onRemindSent(message, result) {
   scrollToBottom();
 }
 
-const userInput = ref('');
-const messages = ref([
-  {
-    role: 'assistant',
-    content: welcomeText,
-  },
-]);
 const isLoading = ref(false);
 const messagesContainer = ref(null);
 
@@ -2027,6 +2038,18 @@ const sendMessage = async () => {
   messages.value.push({ role: 'user', content: inputText });
   scrollToBottom();
 
+  const navTarget = detectAppNavIntent(inputText, { teacherMode: props.teacherMode });
+  if (navTarget) {
+    messages.value.push({
+      role: 'assistant',
+      content: `好的，点下面按钮就能进入${navTarget.label}。`,
+      isAppNavJump: true,
+      appNavTarget: navTarget,
+    });
+    scrollToBottom();
+    return;
+  }
+
   if (wantsReviewRhythmCard(inputText)) {
     messages.value.push({
       role: 'assistant',
@@ -2344,6 +2367,7 @@ function isInlineFormMessage(message) {
     message.isEmailReminderForm ||
     message.isLearningReminderForm ||
     message.isReviewRhythmForm ||
+    message.isAppNavJump ||
     message.classroomResult ||
     message.isClassroomTaskConfirm ||
     message.isClassroomDocImport
@@ -2376,6 +2400,23 @@ onMounted(() => {
   }
   scrollToBottom();
   refreshStudentUnread();
+});
+
+let chatPersistTimer = null;
+watch(
+  messages,
+  (list) => {
+    if (chatPersistTimer) clearTimeout(chatPersistTimer);
+    chatPersistTimer = setTimeout(() => {
+      saveChatSession(props.teacherMode, list);
+    }, 250);
+  },
+  { deep: true },
+);
+
+onBeforeUnmount(() => {
+  if (chatPersistTimer) clearTimeout(chatPersistTimer);
+  saveChatSession(props.teacherMode, messages.value);
 });
 
 onUnmounted(() => {
@@ -3453,7 +3494,8 @@ html.chat-route .chat-page {
 .ai-message:has(.review-rhythm-plan-wrap),
 .ai-message:has(.learning-reminder-form-wrap),
 .ai-message:has(.learning-email-reminder-form-wrap),
-.ai-message:has(.user-profile-form-wrap) {
+.ai-message:has(.user-profile-form-wrap),
+.ai-message:has(.app-nav-jump-wrap) {
   background: transparent;
   border: none;
   padding: 0;
@@ -3464,9 +3506,17 @@ html.chat-route .chat-page {
 .review-rhythm-plan-wrap,
 .learning-reminder-form-wrap,
 .learning-email-reminder-form-wrap,
-.user-profile-form-wrap {
+.user-profile-form-wrap,
+.app-nav-jump-wrap {
   margin-top: 0;
   width: min(540px, 100%);
+}
+
+.app-nav-jump-lead {
+  margin: 0 0 10px;
+  font-size: 14px;
+  line-height: 1.55;
+  color: #334155;
 }
 
 /* 天气 / 出行锦囊卡片容器 */
