@@ -74,11 +74,12 @@ mybatis:
 amap:
   api-key: "0ab38e4aeeda6f0050321c3b74bccea0"
 
-# 腾讯位置服务（美食 / 餐厅 POI 地点搜索）。Key 与 SK 用环境变量：TENCENT_MAP_KEY、TENCENT_MAP_SK
+# 腾讯位置服务（地点搜索 / 美食 POI）。Key 与 SK 切勿提交到公开仓库。
+# 本地可设环境变量：TENCENT_MAP_KEY、TENCENT_MAP_SK
 tencent:
   map:
-    key: ${TENCENT_MAP_KEY:}
-    secret: ${TENCENT_MAP_SK:}
+    key: ${TENCENT_MAP_KEY:AGGBZ-GUME4-FQKU6-FB2NX-PVSI7-MXBKQ}
+    secret: ${TENCENT_MAP_SK:v26CxgeAIwKRwHbRe7sYYs77aCKX0QGa}
 
 sms:
   api-url: "https://api.neekoft.com/sms/send"
